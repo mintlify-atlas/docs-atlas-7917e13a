@@ -1,0 +1,288 @@
+---
+title: Kitty Terminal Emulator
+description: Fast, GPU-based terminal emulator with extensive configuration
+---
+
+## Overview
+
+Kitty is a fast, feature-rich, GPU-based terminal emulator that provides excellent performance and extensive customization options. This configuration focuses on a clean, efficient setup with the Iosevka font and sensible defaults.
+
+## Features
+
+- **GPU Acceleration**: Hardware-accelerated rendering for smooth performance
+- **Font Ligatures**: Full support for programming ligatures
+- **Multiple Layouts**: Flexible window management with tabs and splits
+- **Mouse Support**: Click URLs, copy on select, and visual feedback
+- **Keyboard Shortcuts**: Extensive keyboard-driven workflow
+
+## Installation
+
+<Tabs>
+  <Tab title="macOS">
+    ```bash
+    brew install kitty
+    ```
+  </Tab>
+  <Tab title="Linux">
+    ```bash
+    # Debian/Ubuntu
+    sudo apt install kitty
+    
+    # Arch Linux
+    sudo pacman -S kitty
+    
+    # From source (any Linux)
+    curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+    ```
+  </Tab>
+</Tabs>
+
+## Configuration
+
+The main configuration file is located at `~/.config/kitty/kitty.conf`.
+
+### Font Configuration
+
+This setup uses Iosevka SS15, a versatile programming font with excellent readability:
+
+```conf
+font_family      Iosevka ss15
+bold_font        Iosevka ss15 Bold
+italic_font      Iosevka ss15 Italic
+bold_italic_font auto
+
+font_size 12.0
+```
+
+<Note>
+  Install Iosevka from [https://github.com/be5invis/Iosevka](https://github.com/be5invis/Iosevka) or use `kitty list-fonts` to see available fonts on your system.
+</Note>
+
+### Cursor Configuration
+
+```conf
+cursor_shape block
+cursor_beam_thickness 1.5
+cursor_underline_thickness 2.0
+cursor_blink_interval -1  # No blinking (system default)
+cursor_stop_blinking_after 15.0
+```
+
+### Scrollback
+
+```conf
+scrollback_lines 2000
+scrollback_pager less --chop-long-lines --RAW-CONTROL-CHARS +INPUT_LINE_NUMBER
+wheel_scroll_multiplier 5.0
+```
+
+### Mouse Behavior
+
+```conf
+mouse_hide_wait 3.0
+url_style single
+copy_on_select yes  # Auto-copy on selection
+detect_urls yes
+```
+
+<Warning>
+  `copy_on_select yes` is a security risk as all programs can read clipboard. Set to `no` or use a private buffer name if concerned.
+</Warning>
+
+### Window Layout
+
+```conf
+remember_window_size yes
+initial_window_width 640
+initial_window_height 400
+enabled_layouts *
+window_border_width 0.5pt
+draw_minimal_borders yes
+window_padding_width 0
+```
+
+### Performance Tuning
+
+```conf
+repaint_delay 10      # ~100 FPS
+input_delay 3         # Fast response
+sync_to_monitor yes   # Prevent screen tearing
+```
+
+### Tab Bar
+
+```conf
+tab_bar_edge bottom
+tab_bar_style fade
+tab_bar_min_tabs 2
+tab_switch_strategy previous
+tab_separator " ┇"
+active_tab_font_style bold-italic
+```
+
+## Key Bindings
+
+Kitty uses `ctrl+shift` as the default modifier (referred to as `kitty_mod`).
+
+### Essential Shortcuts
+
+<AccordionGroup>
+  <Accordion title="Clipboard Operations">
+    | Shortcut | Action |
+    |----------|--------|
+    | `ctrl+shift+c` | Copy to clipboard |
+    | `ctrl+shift+v` | Paste from clipboard |
+    | `ctrl+shift+s` | Paste from selection |
+    | `shift+insert` | Paste from selection |
+  </Accordion>
+
+  <Accordion title="Window Management">
+    | Shortcut | Action |
+    |----------|--------|
+    | `ctrl+shift+enter` | New window |
+    | `ctrl+shift+n` | New OS window |
+    | `ctrl+shift+w` | Close window |
+    | `ctrl+shift+]` | Next window |
+    | `ctrl+shift+[` | Previous window |
+    | `ctrl+shift+r` | Start resizing window |
+    | `ctrl+shift+1-9` | Jump to window 1-9 |
+  </Accordion>
+
+  <Accordion title="Tab Management">
+    | Shortcut | Action |
+    |----------|--------|
+    | `ctrl+shift+t` | New tab |
+    | `ctrl+shift+q` | Close tab |
+    | `ctrl+shift+right` | Next tab |
+    | `ctrl+shift+left` | Previous tab |
+    | `ctrl+shift+.` | Move tab forward |
+    | `ctrl+shift+,` | Move tab backward |
+  </Accordion>
+
+  <Accordion title="Scrolling">
+    | Shortcut | Action |
+    |----------|--------|
+    | `ctrl+shift+up` | Scroll line up |
+    | `ctrl+shift+down` | Scroll line down |
+    | `ctrl+shift+page_up` | Scroll page up |
+    | `ctrl+shift+page_down` | Scroll page down |
+    | `ctrl+shift+home` | Scroll to top |
+    | `ctrl+shift+end` | Scroll to bottom |
+  </Accordion>
+
+  <Accordion title="Font Size">
+    | Shortcut | Action |
+    |----------|--------|
+    | `ctrl+shift+equal` | Increase font size |
+    | `ctrl+shift+minus` | Decrease font size |
+    | `ctrl+shift+backspace` | Reset font size |
+  </Accordion>
+</AccordionGroup>
+
+## Hints Mode
+
+Kitty's hints kitten allows keyboard-driven text selection:
+
+```conf
+map ctrl+shift+e kitten hints
+map ctrl+shift+p>f kitten hints --type path --program -
+map ctrl+shift+p>l kitten hints --type line --program -
+map ctrl+shift+p>w kitten hints --type word --program -
+map ctrl+shift+p>h kitten hints --type hash --program -
+```
+
+## Theme Configuration
+
+The configuration includes a separate theme file:
+
+```conf
+include kitty-theme.conf
+```
+
+Create `~/.config/kitty/kitty-theme.conf` for your color scheme. Browse themes at [Kitty Themes](https://github.com/dexpota/kitty-themes).
+
+## Advanced Features
+
+### Background Opacity
+
+```conf
+background_opacity 1.0
+dynamic_background_opacity no
+```
+
+Enable dynamic opacity control:
+
+```conf
+map ctrl+shift+a>m set_background_opacity +0.1
+map ctrl+shift+a>l set_background_opacity -0.1
+map ctrl+shift+a>1 set_background_opacity 1
+```
+
+### Ligatures
+
+```conf
+disable_ligatures never
+```
+
+Options: `never`, `always`, or `cursor` (disable when cursor is over them).
+
+### Remote Control
+
+```conf
+allow_remote_control no
+listen_on none
+```
+
+Enable for programmatic control of kitty from scripts.
+
+## Customization Tips
+
+<Steps>
+  <Step title="List available fonts">
+    ```bash
+    kitty list-fonts
+    ```
+  </Step>
+  
+  <Step title="Test font features">
+    ```bash
+    kitty + list-fonts --psnames | grep <FontName>
+    ```
+  </Step>
+  
+  <Step title="Debug keyboard shortcuts">
+    ```bash
+    kitty --debug-keyboard
+    ```
+  </Step>
+  
+  <Step title="Edit configuration">
+    Press `ctrl+shift+f2` or edit `~/.config/kitty/kitty.conf`
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Font not found">
+    Ensure the font is installed system-wide. Use `kitty list-fonts` to verify availability.
+  </Accordion>
+  
+  <Accordion title="Colors look wrong">
+    Check your `TERM` variable:
+    ```bash
+    echo $TERM  # Should be xterm-kitty
+    ```
+  </Accordion>
+  
+  <Accordion title="Ligatures not working">
+    Verify your font supports ligatures and `disable_ligatures` is set to `never`.
+  </Accordion>
+</AccordionGroup>
+
+## Resources
+
+- [Official Documentation](https://sw.kovidgoyal.net/kitty/)
+- [Keyboard Protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/)
+- [Kittens (Plugins)](https://sw.kovidgoyal.net/kitty/kittens_intro/)
+- [Configuration Reference](https://sw.kovidgoyal.net/kitty/conf/)

@@ -1,0 +1,699 @@
+---
+title: "Dunst Notification Daemon"
+description: "Configure Dunst notification daemon with custom styling, urgency levels, and keyboard shortcuts for i3 window manager"
+---
+
+# Dunst Notification Daemon
+
+Dunst is a lightweight and customizable notification daemon for Linux, providing desktop notifications with extensive configuration options.
+
+## Overview
+
+**Configuration file:** `~/.config/dunst/dunstrc`
+
+Dunst displays notifications with customizable appearance, behavior, and urgency levels.
+
+## Display Configuration
+
+### Basic Display Settings
+
+```conf
+[global]
+    monitor = 0
+    follow = keyboard
+    geometry = "350x5-4+24"
+    indicate_hidden = yes
+    shrink = yes
+```
+
+### Geometry Format
+
+The geometry setting uses the format: `WIDTHxHEIGHT-X+Y`
+
+```conf
+geometry = "350x5-4+24"
+```
+
+<Accordion title="Geometry Breakdown">
+
+- **350** - Width in pixels
+- **x5** - Show up to 5 notifications
+- **-4** - 4 pixels from right edge (negative = from right)
+- **+24** - 24 pixels from top edge (positive = from top)
+
+**Position Examples:**
+
+```conf
+# Top-right corner
+geometry = "300x5-10+30"
+
+# Top-left corner
+geometry = "300x5+10+30"
+
+# Bottom-right corner
+geometry = "300x5-10-30"
+
+# Centered at top
+geometry = "300x5-0+30"
+```
+
+</Accordion>
+
+### Monitor and Follow Settings
+
+```conf
+monitor = 0
+follow = keyboard
+```
+
+<Note>
+`follow = keyboard` displays notifications on the monitor with keyboard focus. Options: `none`, `mouse`, `keyboard`
+</Note>
+
+## Notification Appearance
+
+### Size and Spacing
+
+```conf
+transparency = 0
+notification_height = 40
+separator_height = 4
+padding = 10
+horizontal_padding = 8
+```
+
+### Frame and Borders
+
+```conf
+frame_width = 0
+frame_color = "#ffffff00"
+separator_color = frame
+corner_radius = 2
+```
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| `transparency` | `0-100` | Window transparency level |
+| `notification_height` | `40` | Minimum notification height |
+| `separator_height` | `4` | Space between notifications |
+| `corner_radius` | `2` | Border radius in pixels |
+
+## Text Configuration
+
+### Font and Formatting
+
+```conf
+font = Monospace 12
+line_height = 0
+markup = full
+format = "<b>%s</b>\n%b"
+alignment = left
+vertical_alignment = center
+```
+
+### Format String
+
+```conf
+format = "<b>%s</b>\n%b"
+```
+
+<Accordion title="Format Variables">
+
+- **%a** - Application name
+- **%s** - Summary (title)
+- **%b** - Body text
+- **%i** - Icon path
+- **%I** - Icon name
+- **%p** - Progress value (if provided)
+- **%n** - Progress value without "%" sign
+- **%%** - Literal %
+
+**Examples:**
+
+```conf
+# Bold title, normal body
+format = "<b>%s</b>\n%b"
+
+# Show app name in italics
+format = "<i>%a</i>: <b>%s</b>\n%b"
+
+# Include progress bar
+format = "<b>%s</b> %p\n%b"
+```
+
+</Accordion>
+
+### Text Processing
+
+```conf
+show_age_threshold = 60
+word_wrap = yes
+ellipsize = middle
+ignore_newline = no
+stack_duplicates = true
+hide_duplicate_count = false
+show_indicators = yes
+```
+
+<Note>
+`ellipsize = middle` truncates long text in the middle, preserving start and end. Options: `start`, `middle`, `end`
+</Note>
+
+## Icon Configuration
+
+```conf
+icon_position = left
+min_icon_size = 0
+max_icon_size = 32
+icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+```
+
+### Icon Settings
+
+<Steps>
+
+### Set icon position
+
+```conf
+icon_position = left  # left, right, top, off
+```
+
+### Configure icon size
+
+```conf
+min_icon_size = 0
+max_icon_size = 32
+```
+
+### Add icon theme paths
+
+```conf
+icon_path = /usr/share/icons/Papirus/16x16/status/:/usr/share/icons/Papirus/16x16/apps/
+```
+
+</Steps>
+
+## History and Behavior
+
+### History Settings
+
+```conf
+sticky_history = yes
+history_length = 20
+```
+
+### Sorting and Timing
+
+```conf
+sort = yes
+idle_threshold = 120
+```
+
+<Accordion title="Behavior Options Explained">
+
+- **sticky_history**: Keep notifications in history when dismissed
+- **history_length**: Maximum notifications to store
+- **sort**: Sort notifications by urgency
+- **idle_threshold**: Seconds before considering user idle
+
+**Idle behavior:**
+- Notifications are suppressed when idle
+- They appear when you return
+- Prevents notification spam while away
+
+</Accordion>
+
+## Keyboard Shortcuts
+
+```conf
+[shortcuts]
+    close = ctrl+space
+    close_all = ctrl+shift+space
+    history = ctrl+grave
+    context = ctrl+shift+period
+```
+
+### Available Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `ctrl+space` | Close current notification |
+| `ctrl+shift+space` | Close all notifications |
+| `ctrl+grave` (backtick) | Show notification history |
+| `ctrl+shift+period` | Open context menu |
+
+<Note>
+Customize shortcuts by changing the keybindings in the `[shortcuts]` section.
+</Note>
+
+## Mouse Actions
+
+```conf
+mouse_left_click = close_all
+mouse_middle_click = do_action, close_current
+mouse_right_click = close_current
+```
+
+### Mouse Button Options
+
+<Accordion title="Available Mouse Actions">
+
+- **none** - Do nothing
+- **do_action** - Execute notification action
+- **close_current** - Close clicked notification
+- **close_all** - Close all notifications
+- **context** - Open context menu
+- **context_all** - Open context menu for all
+
+**Example configurations:**
+
+```conf
+# Left click to execute action
+mouse_left_click = do_action, close_current
+
+# Right click for context menu
+mouse_right_click = context
+
+# Middle click to close all
+mouse_middle_click = close_all
+```
+
+</Accordion>
+
+## Urgency Levels
+
+### Low Urgency
+
+```conf
+[urgency_low]
+    background = "#222222"
+    foreground = "#888888"
+    timeout = 5
+```
+
+### Normal Urgency
+
+```conf
+[urgency_normal]
+    background = "#49445A"
+    foreground = "#ffffff"
+    timeout = 5
+```
+
+### Critical Urgency
+
+```conf
+[urgency_critical]
+    background = "#FF8383"
+    foreground = "#ffffff"
+    frame_color = "#FF8383"
+    timeout = 0
+```
+
+<Warning>
+Critical notifications have `timeout = 0`, meaning they never auto-dismiss. They must be manually closed.
+</Warning>
+
+### Timeout Values
+
+| Timeout | Behavior |
+|---------|----------|
+| `0` | Never timeout (requires manual dismiss) |
+| `>0` | Timeout after N seconds |
+| `-1` | Use default timeout |
+
+## Advanced Configuration
+
+### Application-Specific Rules
+
+Add custom sections for per-application settings:
+
+```conf
+# Firefox notifications
+[firefox]
+    appname = Firefox
+    urgency = normal
+    background = "#2B2B2B"
+    foreground = "#FFFFFF"
+    timeout = 10
+
+# Spotify notifications
+[spotify]
+    appname = Spotify
+    urgency = low
+    background = "#1DB954"
+    foreground = "#000000"
+    timeout = 5
+    format = "🎵 <b>%s</b>\n%b"
+```
+
+### Rule Matching
+
+<Accordion title="Available Matching Criteria">
+
+You can match notifications by:
+
+- **appname** - Application name
+- **summary** - Notification title
+- **body** - Notification body text
+- **icon** - Icon name or path
+- **category** - Notification category
+- **msg_urgency** - Urgency level
+- **stack_tag** - Stack tag for grouping
+- **desktop_entry** - Desktop entry name
+
+**Example rules:**
+
+```conf
+# Hide notifications matching "foo"
+[ignore-foo]
+    summary = "*foo*"
+    format = ""
+
+# Custom format for specific app
+[custom-app]
+    desktop_entry = "myapp"
+    format = "📱 %s: %b"
+    background = "#333333"
+
+# Low urgency for specific body text
+[downgrade-urgency]
+    body = "*not important*"
+    urgency = low
+```
+
+</Accordion>
+
+### Script Execution
+
+Run scripts when notifications match:
+
+```conf
+[run-script]
+    summary = "*backup*"
+    script = ~/.config/dunst/scripts/backup-notification.sh
+```
+
+Script receives arguments:
+
+```bash
+#!/bin/bash
+# $1 = appname
+# $2 = summary
+# $3 = body
+# $4 = icon
+# $5 = urgency
+
+echo "Notification from $1: $2" >> ~/notification.log
+```
+
+### Fullscreen Behavior
+
+```conf
+[fullscreen_delay]
+    fullscreen = delay
+```
+
+<Accordion title="Fullscreen Options">
+
+- **show** - Always show notifications
+- **delay** - Show only if no fullscreen window
+- **pushback** - Hide when entering fullscreen
+
+**Per-urgency override:**
+
+```conf
+[fullscreen_show_critical]
+    msg_urgency = critical
+    fullscreen = show
+```
+
+</Accordion>
+
+## Starting Dunst
+
+### Auto-start with i3
+
+Add to `~/.config/i3/config`:
+
+```bash
+exec_always --no-startup-id dunst
+```
+
+### Manual Start
+
+```bash
+# Start dunst
+dunst
+
+# Start with specific config
+dunst -config ~/.config/dunst/dunstrc
+
+# Print config and exit (for debugging)
+dunst -print
+```
+
+### Testing Notifications
+
+<Steps>
+
+### Send test notification
+
+```bash
+notify-send "Test" "This is a test notification"
+```
+
+### Test with urgency
+
+```bash
+notify-send -u low "Low" "Low urgency"
+notify-send -u normal "Normal" "Normal urgency"
+notify-send -u critical "Critical" "Critical urgency"
+```
+
+### Test with icon
+
+```bash
+notify-send -i dialog-information "Info" "With icon"
+```
+
+### Test with timeout
+
+```bash
+notify-send -t 3000 "Short" "3 second timeout"
+```
+
+</Steps>
+
+## Notification Control
+
+### Using dunstctl
+
+```bash
+# Close last notification
+dunstctl close
+
+# Close all notifications
+dunstctl close-all
+
+# Show notification history
+dunstctl history-pop
+
+# Toggle pause
+dunstctl set-paused toggle
+
+# Check if paused
+dunstctl is-paused
+
+# Get notification count
+dunstctl count
+```
+
+### i3 Integration
+
+Add to i3 config for quick control:
+
+```bash
+# Toggle pause notifications
+bindsym $mod+n exec --no-startup-id dunstctl set-paused toggle
+
+# Close all notifications
+bindsym $mod+Shift+n exec --no-startup-id dunstctl close-all
+
+# Show history
+bindsym $mod+Ctrl+n exec --no-startup-id dunstctl history-pop
+```
+
+## Styling Tips
+
+### Modern Dark Theme
+
+```conf
+[urgency_low]
+    background = "#1e1e2e"
+    foreground = "#cdd6f4"
+    timeout = 5
+
+[urgency_normal]
+    background = "#313244"
+    foreground = "#cdd6f4"
+    frame_color = "#89b4fa"
+    timeout = 7
+
+[urgency_critical]
+    background = "#f38ba8"
+    foreground = "#1e1e2e"
+    frame_color = "#f38ba8"
+    timeout = 0
+```
+
+### Minimal Style
+
+```conf
+[global]
+    frame_width = 1
+    corner_radius = 4
+    padding = 12
+    horizontal_padding = 12
+    font = Sans 10
+    format = "%s\n%b"
+```
+
+### Progress Bar Notifications
+
+```conf
+[global]
+    format = "<b>%s</b> %p\n%b"
+    progress_bar = true
+    progress_bar_height = 10
+    progress_bar_frame_width = 1
+    progress_bar_min_width = 150
+    progress_bar_max_width = 300
+```
+
+## Troubleshooting
+
+<Steps>
+
+### Check if Dunst is running
+
+```bash
+ps aux | grep dunst
+```
+
+### Kill and restart
+
+```bash
+killall dunst
+dunst &
+```
+
+### Test configuration
+
+```bash
+dunst -print
+```
+
+### View debug output
+
+```bash
+dunst -verbosity debug
+```
+
+</Steps>
+
+### Common Issues
+
+<Accordion title="Notifications not showing">
+
+**Check:**
+
+1. Dunst is running: `pgrep dunst`
+2. No other notification daemons: `pgrep -a notification`
+3. Test with: `notify-send "Test" "Message"`
+4. Check config syntax: `dunst -print`
+
+</Accordion>
+
+<Accordion title="Icons not displaying">
+
+**Solutions:**
+
+1. Install icon theme:
+```bash
+sudo pacman -S papirus-icon-theme
+```
+
+2. Set correct icon path:
+```conf
+icon_path = /usr/share/icons/Papirus/16x16/
+```
+
+3. Verify icon exists:
+```bash
+ls /usr/share/icons/Papirus/
+```
+
+</Accordion>
+
+<Accordion title="Shortcuts not working">
+
+**Check:**
+
+1. No conflicting i3 bindings
+2. Dunst has focus when pressing shortcuts
+3. Try different key combinations
+4. Check with: `xbindkeys -mk`
+
+</Accordion>
+
+## Experimental Features
+
+```conf
+[experimental]
+    per_monitor_dpi = false
+```
+
+<Note>
+Experimental features may be unstable. Enable with caution and refer to [Dunst documentation](https://dunst-project.org/documentation/) for details.
+</Note>
+
+## Additional Configuration
+
+### Browser Integration
+
+```conf
+browser = /usr/bin/firefox -new-tab
+```
+
+Opens URLs in notifications with the specified browser.
+
+### DMenu Integration
+
+```conf
+dmenu = /usr/bin/dmenu -p dunst:
+```
+
+Uses dmenu or rofi for action selection:
+
+```conf
+dmenu = /usr/bin/rofi -dmenu -p "Select action:"
+```
+
+### Startup Notification
+
+```conf
+startup_notification = false
+```
+
+Disables the startup notification when Dunst launches.
+
+## Summary
+
+Dunst provides a lightweight, highly customizable notification system perfect for i3 window manager. Key features include:
+
+- **Urgency-based styling** for different notification types
+- **Keyboard shortcuts** for quick control
+- **History** for missed notifications
+- **Per-application rules** for custom behavior
+- **Minimal resource usage** ideal for tiling WMs

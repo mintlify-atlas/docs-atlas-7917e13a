@@ -1,0 +1,394 @@
+---
+title: "i3 Window Manager Configuration"
+description: "Complete guide to configuring the i3 tiling window manager with custom keybindings, workspaces, and window rules"
+---
+
+# i3 Window Manager Configuration
+
+This guide covers the complete i3 window manager configuration, including keybindings, workspace management, window rules, and visual customization.
+
+## Overview
+
+The i3 configuration is based on i3-gaps with enhanced tiling capabilities, custom workspaces, and integration with other components like Polybar and Picom.
+
+**Configuration file:** `~/.config/i3/config`
+
+## Basic Settings
+
+<Steps>
+
+### Set the modifier key
+
+The Super key (Windows key) is used as the primary modifier:
+
+```bash
+set $mod Mod4
+```
+
+<Note>
+Mod4 is the Super/Windows key. Use Mod1 for Alt key if preferred.
+</Note>
+
+### Configure font
+
+```bash
+font xft:URWGothic-Book 11
+```
+
+### Set up monitors
+
+```bash
+set $monitor0  DP-4
+set $monitor1  HDMI-0
+```
+
+</Steps>
+
+## Essential Keybindings
+
+### Window Management
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+Shift+q` | Kill focused window |
+| `$mod+Shift+space` | Toggle floating/tiling |
+| `$mod+space` | Change focus between tiling/floating |
+| `$mod+a` | Focus parent container |
+
+### Focus Navigation
+
+```bash
+# Vim-style focus
+bindsym $mod+j focus left
+bindsym $mod+k focus down
+bindsym $mod+l focus up
+bindsym $mod+semicolon focus right
+
+# Arrow keys
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+```
+
+### Moving Windows
+
+```bash
+bindsym $mod+Shift+j move left
+bindsym $mod+Shift+k move down
+bindsym $mod+Shift+l move up
+bindsym $mod+Shift+semicolon move right
+
+# Arrow keys work too
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+```
+
+## Application Launchers
+
+<Accordion title="Terminal and System Applications">
+
+```bash
+# Terminals
+bindsym $mod+Return exec kitty
+bindsym $mod+KP_Enter exec kitty ranger
+bindsym $mod+KP_Add exec alacritty
+
+# Application launcher
+bindsym $mod+d exec --no-startup-id rofi -show drun
+
+# Power menu
+bindsym $mod+Tab exec --no-startup-id $HOME/dotfiles/.config/rofi/powermenu.sh
+
+# Calculator
+bindsym $mod+Shift+d exec --no-startup-id rofi -show calc -modi calc -no-show-match -no-sort
+```
+
+</Accordion>
+
+<Accordion title="Quick Application Shortcuts">
+
+```bash
+bindsym $mod+F1 exec firefox
+bindsym $mod+F2 exec thunar
+bindsym $mod+F3 exec spotify
+```
+
+</Accordion>
+
+<Accordion title="Screenshot and Tools">
+
+```bash
+bindsym $mod+Print exec flameshot gui
+bindsym $mod+Shift+Print exec gcolor2
+bindsym $mod+Scroll_Lock exec i3lock -c 000000
+```
+
+</Accordion>
+
+## Layout Management
+
+### Split Orientation
+
+```bash
+bindsym $mod+h split h  # Horizontal split
+bindsym $mod+v split v  # Vertical split
+```
+
+### Container Layouts
+
+```bash
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+```
+
+## Window Resizing
+
+### Quick Resize (1 pixel)
+
+```bash
+bindsym $mod+Ctrl+Right resize shrink width 1 px or 1 ppt
+bindsym $mod+Ctrl+Up resize grow height 1 px or 1 ppt
+bindsym $mod+Ctrl+Down resize shrink height 1 px or 1 ppt
+bindsym $mod+Ctrl+Left resize grow width 1 px or 1 ppt
+```
+
+### Fast Resize (10 pixels)
+
+```bash
+bindsym $mod+Ctrl+Shift+Right resize shrink width 10 px or 10 ppt
+bindsym $mod+Ctrl+Shift+Up resize grow height 10 px or 10 ppt
+bindsym $mod+Ctrl+Shift+Down resize shrink height 10 px or 10 ppt
+bindsym $mod+Ctrl+Shift+Left resize grow width 10 px or 10 ppt
+```
+
+### Resize Mode
+
+```bash
+bindsym $mod+r mode "resize"
+
+mode "resize" {
+    bindsym j resize shrink width 10 px or 10 ppt
+    bindsym k resize grow height 10 px or 10 ppt
+    bindsym l resize shrink height 10 px or 10 ppt
+    bindsym semicolon resize grow width 10 px or 10 ppt
+    
+    bindsym Left resize shrink width 10 px or 10 ppt
+    bindsym Down resize grow height 10 px or 10 ppt
+    bindsym Up resize shrink height 10 px or 10 ppt
+    bindsym Right resize grow width 10 px or 10 ppt
+    
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $mod+r mode "default"
+}
+```
+
+## Workspace Configuration
+
+### Workspace Definitions
+
+```bash
+set $ws1  1
+set $ws2  2
+set $ws3  3
+set $ws4  4
+set $ws5  5
+set $ws6  6
+set $ws7  7
+set $ws8  8
+set $ws9  9
+set $ws10 10
+set $wsmusic 11
+set $wsteams 12
+set $wsfront 13
+set $wsback 14
+set $wstrsh 20
+```
+
+### Switch to Workspace
+
+```bash
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+# ... (1-9, 0 for workspaces 1-10)
+bindsym $mod+m workspace $wsmusic
+bindsym $mod+c workspace $wsteams
+bindsym $mod+f workspace $wsfront
+bindsym $mod+b workspace $wsback
+bindsym $mod+x workspace $wstrsh
+```
+
+### Move Containers to Workspace
+
+```bash
+bindsym $mod+Shift+1 move container to workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2
+# ... (same pattern for all workspaces)
+```
+
+### Multi-Monitor Setup
+
+<Warning>
+Workspaces are assigned to specific monitors. Adjust monitor names based on your setup:
+</Warning>
+
+```bash
+workspace $ws1  output $monitor0
+workspace $ws2  output $monitor1
+workspace $wsmusic output $monitor0
+workspace $wsteams output $monitor0
+# ...
+```
+
+### Move Workspaces Between Monitors
+
+```bash
+bindsym $mod+Ctrl+greater move workspace to output right
+bindsym $mod+Ctrl+less move workspace to output left
+```
+
+## Audio Controls
+
+<Accordion title="PulseAudio Volume">
+
+```bash
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10%
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10%
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle
+
+# Alternative controls
+bindsym $mod+Prior exec --no-startup-id amixer set Master -q 5%+
+bindsym $mod+Next exec --no-startup-id amixer set Master -q 5%-
+```
+
+</Accordion>
+
+<Accordion title="Spotify Controls">
+
+```bash
+bindsym $mod+Insert exec playerctl -p spotify play-pause
+bindsym $mod+Home exec playerctl -p spotify next
+bindsym $mod+End exec playerctl -p spotify previous
+```
+
+</Accordion>
+
+## i3 System Controls
+
+```bash
+bindsym $mod+Shift+t reload        # Reload configuration
+bindsym $mod+Shift+r restart       # Restart i3 in-place
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Exit i3?' -B 'Yes' 'i3-msg exit'"
+```
+
+## Visual Customization
+
+### i3-gaps Configuration
+
+```bash
+for_window [class="^.*"] border pixel 3
+gaps inner 8
+gaps outer 0
+```
+
+### Color Scheme
+
+```bash
+# class                 border  backgr. text    indicator child_border
+client.focused          #ffffff #ffffff #ffffff #ffffff   #ffffff
+client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
+client.unfocused        #333333 #222222 #888888 #292d2e   #222222
+client.urgent           #2f343a #FF8383 #ffffff #FF8383   #FF8383
+client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
+client.background       #ffffff
+```
+
+## Window Rules
+
+<Accordion title="Floating Window Rules">
+
+```bash
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="task_dialog"] floating enable
+for_window [class="yakuake"] floating enable
+for_window [class="systemsettings"] floating enable
+for_window [class="Pavucontrol"] floating enable; border none
+for_window [class="Steam" title="Friends List"] floating enable; border none
+```
+
+</Accordion>
+
+<Accordion title="Plasma Desktop Compatibility">
+
+```bash
+for_window [title="plasma-desktop"] floating enable; border none
+for_window [class="plasmashell"] floating enable
+for_window [class="Plasma"] floating enable; border none
+for_window [class="krunner"] floating enable; border none
+for_window [class="(?i)*nextcloud*"] floating disable
+no_focus [class="plasmashell" window_type="notification"]
+```
+
+</Accordion>
+
+## Startup Applications
+
+```bash
+# Screen locker
+exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
+
+# Network manager
+exec --no-startup-id nm-applet
+
+# Volume icon
+exec --no-startup-id volumeicon
+
+# Polybar status bar
+exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+
+# Compositor
+exec_always --no-startup-id picom --backend glx --xrender-sync-fence
+
+# Notification daemon
+exec_always --no-startup-id dunst
+
+# Auto-tiling
+exec_always --no-startup-id autotiling
+
+# Workspace layouts
+exec "sh ~/dotfiles/.config/i3layouts/startLayouts.sh"
+```
+
+<Note>
+The `exec_always` directive runs on every i3 restart/reload, while `exec` only runs on startup.
+</Note>
+
+## Additional Configuration
+
+### Floating Modifier
+
+```bash
+floating_modifier $mod
+```
+
+Use `$mod + mouse` to drag floating windows.
+
+### Testing Your Configuration
+
+After making changes:
+
+<Steps>
+1. Save the configuration file
+2. Press `$mod+Shift+t` to reload (tests syntax)
+3. Press `$mod+Shift+r` to restart i3 (applies changes)
+4. Check for errors in `~/.xsession-errors`
+</Steps>
+
+<Warning>
+Always test configuration changes before logging out. Invalid syntax can prevent i3 from starting.
+</Warning>

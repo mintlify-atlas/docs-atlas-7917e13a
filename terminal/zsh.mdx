@@ -1,0 +1,424 @@
+---
+title: Zsh Shell Configuration
+description: Modern Zsh setup with Zinit, Powerlevel10k, and productivity plugins
+---
+
+## Overview
+
+This Zsh configuration provides a modern, fast, and feature-rich shell experience using Zinit as the plugin manager and Powerlevel10k as the theme. The setup includes intelligent autocompletion, syntax highlighting, and various productivity tools.
+
+## Features
+
+- **Zinit Plugin Manager**: Fast, flexible plugin management with turbo mode
+- **Powerlevel10k Theme**: Beautiful, fast prompt with Git integration
+- **Auto Suggestions**: Command suggestions based on history
+- **Syntax Highlighting**: Real-time command syntax validation
+- **Smart Navigation**: Directory jumping with zoxide
+- **Git Integration**: Interactive Git operations with forgit and git shortcuts
+
+## Installation
+
+<Steps>
+  <Step title="Install Zsh">
+    <Tabs>
+      <Tab title="macOS">
+        ```bash
+        brew install zsh
+        ```
+      </Tab>
+      <Tab title="Ubuntu/Debian">
+        ```bash
+        sudo apt install zsh
+        ```
+      </Tab>
+      <Tab title="Arch Linux">
+        ```bash
+        sudo pacman -S zsh
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Set Zsh as default shell">
+    ```bash
+    chsh -s $(which zsh)
+    ```
+  </Step>
+
+  <Step title="Install configuration">
+    ```bash
+    # Copy .zshrc to home directory
+    cp ~/workspace/source/home/.zshrc ~/.zshrc
+    
+    # Copy zsh config directory
+    cp -r ~/workspace/source/.config/zsh ~/.config/
+    
+    # Source the configuration
+    source ~/.zshrc
+    ```
+  </Step>
+
+  <Step title="Configure Powerlevel10k">
+    On first launch, run the configuration wizard:
+    ```bash
+    p10k configure
+    ```
+  </Step>
+</Steps>
+
+## Configuration Structure
+
+The configuration is split into multiple files for better organization:
+
+```
+~/.zshrc                      # Main entry point
+~/.config/zsh/
+  ├── plugins.zsh            # Plugin definitions
+  ├── config.zsh             # Shell options and settings
+  ├── aliases.zsh            # Custom aliases
+  └── p10k.zsh               # Powerlevel10k theme config
+```
+
+## Core Plugins
+
+### Zinit Plugin Manager
+
+Zinit is automatically installed on first run:
+
+```zsh
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+[ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
+[ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+source "${ZINIT_HOME}/zinit.zsh"
+```
+
+### Powerlevel10k Theme
+
+Fast, customizable prompt with Git integration:
+
+```zsh
+zinit ice depth=1; zinit light romkatv/powerlevel10k
+```
+
+<Note>
+  Run `p10k configure` to customize the prompt appearance, or edit `~/.config/zsh/p10k.zsh` directly.
+</Note>
+
+### Zsh-Autosuggestions
+
+Suggests commands as you type based on history:
+
+```zsh
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+zinit ice wait"0a" lucid atload"_zsh_autosuggest_start"
+zinit light zsh-users/zsh-autosuggestions
+```
+
+**Usage**: Press `→` (right arrow) to accept suggestions.
+
+### Syntax Highlighting
+
+Highlights commands in real-time:
+
+```zsh
+zinit ice wait"0c" lucid atinit"zpcompinit;zpcdreplay"
+zinit light zsh-users/zsh-syntax-highlighting
+```
+
+- **Green**: Valid command
+- **Red**: Invalid command
+- **Blue**: Built-in command
+
+### History Substring Search
+
+Search command history using substring matching:
+
+```zsh
+zinit ice wait"0b" lucid atload'bindkey "$terminfo[kcuu1]" history-substring-search-up; bindkey "$terminfo[kcud1]" history-substring-search-down'
+zinit light zsh-users/zsh-history-substring-search
+
+# Additional arrow key bindings
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+```
+
+**Usage**: Type part of a command and use `↑`/`↓` to cycle through matches.
+
+### Auto-pair
+
+Automatically closes brackets, quotes, and parentheses:
+
+```zsh
+zinit light hlissner/zsh-autopair
+```
+
+## Completion Plugins
+
+### Zsh-Completions
+
+Additional completion definitions:
+
+```zsh
+zinit ice wait"0b" lucid blockf
+zinit light zsh-users/zsh-completions
+```
+
+### Fzf-Tab
+
+Fuzzy finder for tab completion:
+
+```zsh
+zinit ice lucid wait'0'
+zinit light Aloxaf/fzf-tab
+```
+
+<Tip>
+  Press `Tab` to trigger completion, then use `Ctrl+J`/`Ctrl+K` to navigate through matches.
+</Tip>
+
+### Yarn Completion
+
+```zsh
+zinit light buonomo/yarn-completion
+```
+
+## Development Tools
+
+### Zoxide
+
+Smart directory navigation that learns your habits:
+
+```zsh
+zinit ice as"program" from"gh-r"
+zinit light ajeetdsouza/zoxide
+```
+
+**Usage**:
+```bash
+z <directory-name>    # Jump to directory
+zi <query>            # Interactive search
+```
+
+### Forgit
+
+Interactive Git commands using fzf:
+
+```zsh
+zinit load wfxr/forgit
+```
+
+**Commands**:
+- `ga` - Interactive `git add`
+- `glo` - Interactive `git log`
+- `gd` - Interactive `git diff`
+- `grh` - Interactive `git reset HEAD`
+- `gcf` - Interactive `git checkout <file>`
+
+### Direnv
+
+Automatically loads/unloads environment variables:
+
+```zsh
+zinit ice as"program" make'!' atclone'./direnv hook zsh > zhook.zsh' atpull'%atclone' src"zhook.zsh"
+zinit light direnv/direnv
+```
+
+**Usage**: Create `.envrc` files in project directories:
+```bash
+export DATABASE_URL=postgresql://localhost/mydb
+export API_KEY=secret
+```
+
+### Docker Compose
+
+Latest Docker Compose binary:
+
+```zsh
+zinit ice from"gh-r" as"program" mv"docker* -> docker-compose" bpick"*linux*"
+zinit load docker/compose
+```
+
+## System Tools
+
+### Duf
+
+Better disk usage utility:
+
+```zsh
+zinit ice as"program" from"gh-r"
+zinit light muesli/duf
+```
+
+**Usage**: `duf` - Shows disk usage with color and formatting.
+
+### Gdu
+
+Fast disk usage analyzer:
+
+```zsh
+zinit ice as"program" from"gh-r"
+zinit light dundee/gdu
+```
+
+**Usage**: `gdu <directory>` - Interactive disk usage explorer.
+
+## Oh My Zsh Snippets
+
+Load specific Oh My Zsh plugins without the framework:
+
+```zsh
+zinit snippet OMZP::git        # Git aliases and functions
+zinit snippet OMZP::sudo       # Press ESC twice to add sudo
+zinit snippet OMZP::bgnotify   # Notify when long commands finish
+zinit snippet OMZP::extract    # Extract any archive with 'extract'
+```
+
+### Git Plugin Aliases
+
+<AccordionGroup>
+  <Accordion title="Common Git Aliases">
+    | Alias | Command |
+    |-------|--------|
+    | `g` | `git` |
+    | `ga` | `git add` |
+    | `gaa` | `git add --all` |
+    | `gcmsg` | `git commit -m` |
+    | `gco` | `git checkout` |
+    | `gd` | `git diff` |
+    | `gf` | `git fetch` |
+    | `gl` | `git pull` |
+    | `gp` | `git push` |
+    | `gst` | `git status` |
+  </Accordion>
+</AccordionGroup>
+
+### Sudo Plugin
+
+Press `ESC` twice to prefix the current command with `sudo`.
+
+### Extract Plugin
+
+Unified extraction command:
+```bash
+extract archive.tar.gz
+extract archive.zip
+extract archive.rar
+```
+
+## Customization
+
+### Adding Custom Aliases
+
+Edit `~/.config/zsh/aliases.zsh`:
+```zsh
+alias ll='ls -lah'
+alias vim='nvim'
+alias dc='docker-compose'
+```
+
+### Adding More Plugins
+
+Add to `~/.config/zsh/plugins.zsh`:
+```zsh
+# From GitHub
+zinit light username/repo-name
+
+# With options
+zinit ice wait"1" lucid
+zinit light username/repo-name
+
+# From Oh My Zsh
+zinit snippet OMZP::plugin-name
+```
+
+### Zinit Turbo Mode
+
+The configuration uses turbo mode for faster startup:
+- `wait"0a"` - Load 0 seconds after prompt
+- `lucid` - Don't show loading messages
+- `atload` - Execute code after loading
+
+## Performance Tips
+
+<CardGroup cols={2}>
+  <Card title="Profile Startup" icon="clock">
+    ```bash
+    time zsh -i -c exit
+    ```
+    Measure shell startup time
+  </Card>
+  
+  <Card title="Clear Cache" icon="trash">
+    ```bash
+    rm ~/.zcompdump*
+    zinit cclear
+    ```
+    Clear completion cache
+  </Card>
+  
+  <Card title="Update Plugins" icon="arrow-up">
+    ```bash
+    zinit update --all
+    ```
+    Update all plugins
+  </Card>
+  
+  <Card title="Compile Config" icon="bolt">
+    ```bash
+    zinit compile --all
+    ```
+    Compile for faster loading
+  </Card>
+</CardGroup>
+
+## Key Bindings
+
+| Key | Action |
+|-----|--------|
+| `→` | Accept autosuggestion |
+| `↑` | History substring search (up) |
+| `↓` | History substring search (down) |
+| `Ctrl+R` | Fuzzy history search |
+| `ESC ESC` | Add sudo to command |
+| `Tab` | Trigger fzf-tab completion |
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Slow startup time">
+    Use turbo mode (`wait`) for non-essential plugins. Profile startup:
+    ```bash
+    zsh -xv 2>&1 | ts -i "%.s" > /tmp/zsh-startup.log
+    ```
+  </Accordion>
+  
+  <Accordion title="Completions not working">
+    Rebuild completion cache:
+    ```bash
+    rm -f ~/.zcompdump
+    autoload -Uz compinit && compinit
+    ```
+  </Accordion>
+  
+  <Accordion title="Plugin not loading">
+    Check Zinit status:
+    ```bash
+    zinit report <plugin-name>
+    ```
+  </Accordion>
+  
+  <Accordion title="Powerlevel10k not showing">
+    Ensure font supports glyphs:
+    ```bash
+    p10k configure
+    ```
+    Install a Nerd Font from [nerdfonts.com](https://www.nerdfonts.com/)
+  </Accordion>
+</AccordionGroup>
+
+## Resources
+
+- [Zinit Documentation](https://github.com/zdharma-continuum/zinit)
+- [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
+- [Zsh Documentation](https://zsh.sourceforge.io/Doc/)
+- [Oh My Zsh Plugins](https://github.com/ohmyzsh/ohmyzsh/wiki/Plugins)

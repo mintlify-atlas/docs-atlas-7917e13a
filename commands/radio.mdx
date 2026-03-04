@@ -1,0 +1,531 @@
+---
+title: 'radio - Internet Radio Streaming'
+description: 'Interactive internet radio player with station selection menu for Brazilian radio stations'
+---
+
+## Overview
+
+`radio` is an interactive command-line internet radio player featuring an arrow-key driven menu for selecting from preset radio stations. Uses mpv for high-quality audio streaming with optimized cache settings.
+
+<Info>
+  Currently configured with Rio de Janeiro radio stations, but easily customizable for any internet radio streams.
+</Info>
+
+## Features
+
+- Interactive station selection with arrow keys
+- Visual menu with highlighted selection
+- Keyboard-driven navigation (no mouse required)
+- Zero-cache streaming for real-time audio
+- Support for MP3 stream formats
+- Easy station list customization
+
+---
+
+## Installation
+
+<Steps>
+  <Step title="Install mpv">
+    Install the mpv media player:
+    ```bash
+    # Arch Linux
+    sudo pacman -S mpv
+    
+    # Ubuntu/Debian
+    sudo apt install mpv
+    
+    # macOS
+    brew install mpv
+    ```
+  </Step>
+  
+  <Step title="Make Script Executable">
+    ```bash
+    chmod +x ~/workspace/source/bin/radio
+    ```
+  </Step>
+  
+  <Step title="Add to PATH">
+    ```bash
+    echo 'export PATH="$HOME/workspace/source/bin:$PATH"' >> ~/.bashrc
+    source ~/.bashrc
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Launch interactive station selector
+radio
+```
+
+### Interactive Controls
+
+<Tabs>
+  <Tab title="Navigation">
+    | Key | Action |
+    |-----|--------|
+    | ↑ (Up Arrow) | Move to previous station |
+    | ↓ (Down Arrow) | Move to next station |
+    | Enter | Select station and start streaming |
+    | Ctrl+C | Exit menu or stop playback |
+  </Tab>
+  
+  <Tab title="During Playback">
+    | Key | Action |
+    |-----|--------|
+    | q | Quit mpv and return to terminal |
+    | 9/0 | Decrease/increase volume |
+    | m | Mute/unmute |
+    | Space | Pause/unpause (may cause buffering) |
+  </Tab>
+</Tabs>
+
+---
+
+## Default Stations
+
+Preconfigured Rio de Janeiro stations:
+
+<CardGroup cols={2}>
+  <Card title="95.7 SulAmérica Paradiso" icon="music">
+    Classical and instrumental music
+  </Card>
+  
+  <Card title="99.9 JB FM" icon="radio">
+    News and talk radio
+  </Card>
+  
+  <Card title="102.1 Mix FM" icon="music">
+    Contemporary hits and pop music
+    ```
+    URL: https://playerservices.streamtheworld.com/api/livestream-redirect/MIXRIO.mp3
+    ```
+  </Card>
+  
+  <Card title="102.9 Jovem Pan" icon="tower-broadcast">
+    News, sports, and variety
+    ```
+    URL: https://live.paineldj.com.br/proxy/jptresrios?mp=/stream
+    ```
+  </Card>
+</CardGroup>
+
+---
+
+## Customization
+
+### Adding Your Own Stations
+
+<Steps>
+  <Step title="Open Script for Editing">
+    ```bash
+    nano ~/workspace/source/bin/radio
+    # or
+    vim ~/workspace/source/bin/radio
+    ```
+  </Step>
+  
+  <Step title="Modify Station Arrays">
+    Find the station arrays and add your stations:
+    ```bash
+    radiosRioDeJaneiro=(
+        " 95.7 | SulAmérica Paradiso"
+        " 99.9 | JB FM"
+        "102.1 | Mix FM"
+        "102.9 | Jovem Pan"
+        # Add your stations here
+        "104.5 | Your Station Name"
+    )
+    radiosUrls=(
+        ""
+        ""
+        "https://playerservices.streamtheworld.com/api/livestream-redirect/MIXRIO.mp3"
+        "https://live.paineldj.com.br/proxy/jptresrios?mp=/stream"
+        # Add corresponding URL
+        "https://your-stream-url.com/stream"
+    )
+    ```
+  </Step>
+  
+  <Step title="Test Your Changes">
+    ```bash
+    radio
+    # Navigate to your new station and test
+    ```
+  </Step>
+</Steps>
+
+### Finding Stream URLs
+
+<Accordion title="How to Find Internet Radio Stream URLs">
+<Steps>
+  <Step title="Check Station Website">
+    Look for "Listen Live" links and inspect the page source for .mp3, .aac, or .pls URLs
+  </Step>
+  
+  <Step title="Use Browser Developer Tools">
+    1. Open station's web player
+    2. Open browser DevTools (F12)
+    3. Go to Network tab
+    4. Filter by media type
+    5. Play the stream and find the streaming URL
+  </Step>
+  
+  <Step title="Radio Directory Sites">
+    - [Radio-Browser.info](https://www.radio-browser.info)
+    - [TuneIn](https://tunein.com)
+    - Look for direct stream links
+  </Step>
+</Steps>
+</Accordion>
+
+---
+
+## Source Code
+
+<Accordion title="View Full Implementation">
+```bash
+#!/usr/bin/env bash
+
+function select_option {
+    # https://unix.stackexchange.com/questions/146570/arrow-key-enter-menu
+    ESC=$( printf "\033")
+    cursor_blink_on()  { printf "$ESC[?25h"; }
+    cursor_blink_off() { printf "$ESC[?25l"; }
+    cursor_to()        { printf "$ESC[$1;${2:-1}H"; }
+    print_option()     { printf "  $1 "; }
+    print_selected()   { printf " $ESC[7m $1 $ESC[27m"; }
+    get_cursor_row()   { IFS=';' read -sdR -p $'\E[6n' ROW COL; echo ${ROW#*[}; }
+    key_input()        { read -s -n3 key 2>/dev/null >&2
+                         if [[ $key = $ESC[A ]]; then echo up;    fi
+                         if [[ $key = $ESC[B ]]; then echo down;  fi
+                         if [[ $key = ""     ]]; then echo enter; fi; }
+
+    # initially print empty new lines (scroll down if at bottom of screen)
+    for opt; do printf "\n"; done
+
+    # determine current screen position for overwriting the options
+    local lastrow=`get_cursor_row`
+    local startrow=$(($lastrow - $#))
+
+    # ensure cursor and input echoing back on upon a ctrl+c during read -s
+    trap "cursor_blink_on; stty echo; printf '\n'; exit" 2
+    cursor_blink_off
+
+    local selected=0
+    while true; do
+        # print options by overwriting the last lines
+        local idx=0
+        for opt; do
+            cursor_to $(($startrow + $idx))
+            if [ $idx -eq $selected ]; then
+                print_selected "$opt"
+            else
+                print_option "$opt"
+            fi
+            ((idx++))
+        done
+
+        # user key control
+        case `key_input` in
+            enter) break;;
+            up)    ((selected--));
+                   if [ $selected -lt 0 ]; then selected=$(($# - 1)); fi;;
+            down)  ((selected++));
+                   if [ $selected -ge $# ]; then selected=0; fi;;
+        esac
+    done
+
+    # cursor position back to normal
+    cursor_to $lastrow
+    printf "\n"
+    cursor_blink_on
+
+    return $selected
+}
+
+
+clear;
+echo
+echo "  Radios"
+echo
+
+radiosRioDeJaneiro=(
+    " 95.7 | SulAmérica Paradiso"
+    " 99.9 | JB FM"
+    "102.1 | Mix FM"
+    "102.9 | Jovem Pan"
+
+)
+radiosUrls=(
+    ""
+    ""
+    "https://playerservices.streamtheworld.com/api/livestream-redirect/MIXRIO.mp3"
+    "https://live.paineldj.com.br/proxy/jptresrios?mp=/stream"
+)
+
+
+select_option "${radiosRioDeJaneiro[@]}"
+choice=$?
+
+choiceName=${radiosRioDeJaneiro[$choice]}
+choiceUrl=${radiosUrls[$choice]}
+
+# echo "choice: ${choice}"
+# echo "choiceName: ${choiceName}"
+# echo "choiceUrl: ${choiceUrl}"
+
+mpv -cache=no --no-cache ${choiceUrl}
+```
+</Accordion>
+
+---
+
+## Advanced Configuration
+
+### Multiple Station Lists
+
+<CodeGroup>
+```bash US Stations
+# Add to script
+radiosUS=(
+    "88.5 | WFDD Public Radio"
+    "90.7 | WMFE NPR"
+    "95.5 | WPOC Country"
+)
+radiosUS_urls=(
+    "https://wfdd-ice.streamguys1.com/wfdd1-mp3"
+    "https://wmfe.streamguys1.com/wmfe_main_mp3"
+    "https://stream.revma.ihrhls.com/zc1609"
+)
+```
+
+```bash European Stations
+radiosEU=(
+    "BBC Radio 1"
+    "Radio France"
+    "NDR Kultur"
+)
+radiosEU_urls=(
+    "http://stream.live.vc.bbcmedia.co.uk/bbc_radio_one"
+    "https://direct.franceinter.fr/live/franceinter-midfi.mp3"
+    "https://ndr-ndrkultur-live.cast.addradio.de/ndr/ndrkultur/live/mp3/128/stream.mp3"
+)
+```
+
+```bash Selection Menu
+# Add region selector
+echo "Select Region:"
+select_option "Rio de Janeiro" "United States" "Europe"
+region=$?
+
+case $region in
+  0) stations=("${radiosRioDeJaneiro[@]}"); urls=("${radiosUrls[@]}") ;;
+  1) stations=("${radiosUS[@]}"); urls=("${radiosUS_urls[@]}") ;;
+  2) stations=("${radiosEU[@]}"); urls=("${radiosEU_urls[@]}") ;;
+esac
+```
+</CodeGroup>
+
+### Enhanced mpv Options
+
+<Tabs>
+  <Tab title="High Quality">
+    ```bash
+    # Better quality, more buffering
+    mpv --cache=yes --cache-secs=10 --audio-channels=stereo ${choiceUrl}
+    ```
+  </Tab>
+  
+  <Tab title="Low Latency">
+    ```bash
+    # Minimal delay (current default)
+    mpv --cache=no --no-cache ${choiceUrl}
+    ```
+  </Tab>
+  
+  <Tab title="With Visualizer">
+    ```bash
+    # Audio visualizer
+    mpv --lavfi-complex='[aid1]asplit[ao][a1];[a1]showwaves=mode=cline[vo]' ${choiceUrl}
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Example Workflows
+
+### Work Background Music
+
+```bash
+# Launch radio in background
+radio &
+
+# Or run in tmux/screen session
+tmux new-session -d -s radio 'radio'
+```
+
+### Scheduled Radio Alarm
+
+<CodeGroup>
+```bash Systemd Timer
+# Create radio.service
+[Unit]
+Description=Radio Alarm
+
+[Service]
+Type=simple
+User=yourusername
+ExecStart=/home/yourusername/workspace/source/bin/radio
+```
+
+```bash At Command
+# Play radio at 7 AM
+echo "radio" | at 07:00
+```
+
+```bash Cron Job
+# Monday-Friday 7 AM
+0 7 * * 1-5 DISPLAY=:0 /home/yourusername/workspace/source/bin/radio
+```
+</CodeGroup>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="mpv: command not found">
+    Install mpv media player:
+    ```bash
+    # Arch Linux
+    sudo pacman -S mpv
+    
+    # Ubuntu/Debian
+    sudo apt install mpv
+    
+    # macOS
+    brew install mpv
+    ```
+  </Accordion>
+  
+  <Accordion title="Stream won't play">
+    Test stream URL directly:
+    ```bash
+    # Test URL
+    mpv https://your-stream-url.com/stream
+    
+    # Check URL is accessible
+    curl -I https://your-stream-url.com/stream
+    ```
+    
+    Common issues:
+    - Stream URL changed or station offline
+    - Geo-restricted content
+    - Firewall blocking streaming ports
+  </Accordion>
+  
+  <Accordion title="Arrow keys not working">
+    Terminal compatibility issue. Try:
+    ```bash
+    # Ensure proper terminal type
+    export TERM=xterm-256color
+    
+    # Or use alternative terminal
+    # (alacritty, kitty, gnome-terminal)
+    ```
+  </Accordion>
+  
+  <Accordion title="Audio stuttering or buffering">
+    Adjust cache settings:
+    ```bash
+    # Edit script, change mpv line to:
+    mpv --cache=yes --cache-secs=5 ${choiceUrl}
+    ```
+  </Accordion>
+  
+  <Accordion title="Empty station plays nothing">
+    Some default stations have empty URLs:
+    ```bash
+    radiosUrls=(
+        ""  # Empty - will fail
+        ""  # Empty - will fail
+        "https://..."  # Working URL
+    )
+    ```
+    
+    Solution: Add valid URLs for all stations or remove empty entries
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Tips & Best Practices
+
+<Tip>
+  **Favorite Stations**: Put your most-listened stations at the top of the array for quick access.
+</Tip>
+
+<Tip>
+  **Stream Quality**: Most internet radio streams are 128kbps MP3. Higher quality streams (320kbps) use more bandwidth.
+</Tip>
+
+<Warning>
+  **Network Usage**: Streaming audio continuously uses approximately 1-2 MB per minute depending on bitrate. Monitor usage on metered connections.
+</Warning>
+
+<Info>
+  **Backup Players**: If mpv isn't available, the script can be modified to use mplayer, vlc, or ffplay as alternatives.
+</Info>
+
+---
+
+## Alternative Players
+
+Modify the last line for different players:
+
+<CodeGroup>
+```bash mplayer
+mplayer -cache 128 ${choiceUrl}
+```
+
+```bash vlc
+cvlc ${choiceUrl}
+```
+
+```bash ffplay
+ffplay -nodisp -autoexit ${choiceUrl}
+```
+</CodeGroup>
+
+---
+
+## See Also
+
+<CardGroup cols={2}>
+  <Card title="mpv Documentation" icon="file">
+    Complete mpv manual and options
+    ```bash
+    man mpv
+    ```
+  </Card>
+  
+  <Card title="Command Overview" icon="list" href="/commands/overview">
+    All available utilities
+  </Card>
+  
+  <Card title="Update Utility" icon="download" href="/commands/update">
+    System update command
+  </Card>
+  
+  <Card title="Radio-Browser" icon="globe">
+    Worldwide internet radio directory
+  </Card>
+</CardGroup>

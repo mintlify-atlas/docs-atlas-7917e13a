@@ -1,0 +1,513 @@
+---
+title: "Rofi Launcher Configuration"
+description: "Configure Rofi application launcher with custom themes and modi for i3 window manager"
+---
+
+# Rofi Launcher Configuration
+
+Rofi is a powerful application launcher and window switcher with extensive customization options.
+
+## Overview
+
+**Configuration file:** `~/.config/rofi/config.rasi`
+
+Rofi provides a fast, keyboard-driven interface for launching applications, switching windows, and running custom scripts.
+
+## Basic Configuration
+
+### Core Settings
+
+```rasi
+configuration {
+    modi: "window,drun,run,ssh";
+    font: "mono 14";
+    location: 0;
+    show-icons: true;
+    icon-theme: "Papirus";
+    combi-modi: "run,window";
+}
+```
+
+<Note>
+`location: 0` centers the Rofi window on the screen. Other values position it at different screen edges.
+</Note>
+
+## Modi Configuration
+
+### Available Modi
+
+Rofi supports different modes (modi) for various tasks:
+
+| Modi | Description |
+|------|-------------|
+| `drun` | Desktop application launcher |
+| `run` | Command launcher |
+| `window` | Window switcher |
+| `ssh` | SSH connection selector |
+| `combi` | Combined mode showing multiple modi |
+| `calc` | Calculator mode (requires plugin) |
+
+### Using Modi in i3
+
+From the i3 configuration:
+
+```bash
+# Application launcher (drun)
+bindsym $mod+d exec --no-startup-id rofi -show drun
+
+# Calculator mode
+bindsym $mod+Shift+d exec --no-startup-id rofi -show calc -modi calc -no-show-match -no-sort
+
+# Power menu (custom script)
+bindsym $mod+Tab exec --no-startup-id $HOME/dotfiles/.config/rofi/powermenu.sh
+```
+
+## Icon Configuration
+
+### Enable Icons
+
+```rasi
+show-icons: true;
+icon-theme: "Papirus";
+```
+
+<Warning>
+Ensure the icon theme is installed on your system. Popular options include:
+- Papirus
+- Numix
+- Adwaita
+- Breeze
+</Warning>
+
+### Install Icon Theme
+
+<Steps>
+
+1. **Install Papirus (recommended):**
+
+```bash
+sudo pacman -S papirus-icon-theme  # Arch Linux
+sudo apt install papirus-icon-theme  # Debian/Ubuntu
+```
+
+2. **Verify installation:**
+
+```bash
+ls /usr/share/icons/ | grep -i papirus
+```
+
+3. **Rofi will automatically use the theme**
+
+</Steps>
+
+## Theming
+
+### Custom Theme
+
+The configuration references a custom theme:
+
+```rasi
+@theme "/home/joaopedro/.config/rofi/themes/main.rasi"
+```
+
+### Alternative Built-in Themes
+
+The config shows several theme options (commented out):
+
+```rasi
+//@theme "/usr/share/rofi/themes/Arc-Dark.rasi"
+//@theme "/usr/share/rofi/themes/iggy.rasi"
+//@theme "/usr/share/rofi/themes/purple.rasi"
+//@theme "/usr/share/rofi/themes/android_notification.rasi"
+```
+
+### Browse Available Themes
+
+```bash
+rofi-theme-selector
+```
+
+This interactive tool lets you preview and select themes.
+
+## Creating Custom Themes
+
+### Basic Theme Structure
+
+Create `~/.config/rofi/themes/custom.rasi`:
+
+```rasi
+* {
+    background-color: #1e1e2e;
+    text-color: #cdd6f4;
+    border-color: #89b4fa;
+    selected-normal-background: #89b4fa;
+    selected-normal-foreground: #1e1e2e;
+}
+
+window {
+    width: 600px;
+    border: 2px;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+inputbar {
+    spacing: 8px;
+    padding: 8px;
+}
+
+listview {
+    lines: 10;
+    columns: 1;
+    spacing: 4px;
+}
+
+element {
+    padding: 8px;
+    border-radius: 4px;
+}
+
+element selected {
+    background-color: @selected-normal-background;
+    text-color: @selected-normal-foreground;
+}
+```
+
+<Accordion title="Theme Element Reference">
+
+### Window Elements
+
+- `window` - Main window container
+- `mainbox` - Main content area
+- `inputbar` - Search input field
+- `listview` - List of results
+- `element` - Individual list items
+- `scrollbar` - Scrollbar appearance
+- `message` - Message box
+- `mode-switcher` - Modi switcher buttons
+
+### Common Properties
+
+- `background-color` - Background color
+- `text-color` - Text color
+- `border-color` - Border color
+- `border` - Border width
+- `border-radius` - Corner rounding
+- `padding` - Internal spacing
+- `margin` - External spacing
+- `width`/`height` - Dimensions
+- `font` - Font settings
+
+</Accordion>
+
+## Advanced Configuration Options
+
+<Accordion title="Display Options">
+
+```rasi
+configuration {
+    /* Window positioning */
+    location: 0;  /* 0=center, 1-9 for screen edges */
+    yoffset: 0;
+    xoffset: 0;
+    
+    /* Display settings */
+    fixed-num-lines: true;
+    hide-scrollbar: false;
+    sidebar-mode: false;
+    
+    /* Fullscreen mode */
+    fullscreen: false;
+    
+    /* Terminal for commands */
+    terminal: "rofi-sensible-terminal";
+}
+```
+
+</Accordion>
+
+<Accordion title="Matching and Sorting">
+
+```rasi
+configuration {
+    /* Matching behavior */
+    matching: "normal";  /* normal, regex, glob, fuzzy */
+    case-sensitive: false;
+    tokenize: true;
+    
+    /* Sorting */
+    sort: false;
+    sorting-method: "normal";  /* normal, fzf, levenshtein */
+    
+    /* History */
+    disable-history: false;
+    max-history-size: 25;
+}
+```
+
+</Accordion>
+
+<Accordion title="Application Options">
+
+```rasi
+configuration {
+    /* Desktop entries */
+    drun-match-fields: "name,generic,exec,categories,keywords";
+    drun-display-format: "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
+    drun-show-actions: false;
+    drun-url-launcher: "xdg-open";
+    
+    /* Window switcher */
+    window-format: "{w}    {c}   {t}";
+    window-match-fields: "all";
+}
+```
+
+</Accordion>
+
+## Keyboard Bindings
+
+<Accordion title="Default Keybindings">
+
+While Rofi is open:
+
+| Key | Action |
+|-----|--------|
+| `Enter` | Accept entry |
+| `Escape` | Cancel |
+| `Ctrl+j/k` | Move down/up |
+| `Ctrl+n/p` | Next/previous entry |
+| `Tab` | Next row |
+| `Shift+Tab` | Previous row |
+| `Ctrl+space` | Select entry |
+| `Shift+Right/Left` | Switch modi |
+| `Page Up/Down` | Page navigation |
+| `Home/End` | First/last entry |
+| `Ctrl+v` | Paste |
+| `Ctrl+w` | Clear line |
+| `Ctrl+u` | Delete to start |
+| `Ctrl+k` | Delete to end |
+
+</Accordion>
+
+<Accordion title="Custom Keybindings">
+
+```rasi
+configuration {
+    kb-primary-paste: "Control+V,Shift+Insert";
+    kb-clear-line: "Control+w";
+    kb-move-front: "Control+a";
+    kb-move-end: "Control+e";
+    kb-accept-entry: "Control+j,Control+m,Return,KP_Enter";
+    kb-remove-to-eol: "Control+k";
+    kb-mode-next: "Shift+Right,Control+Tab";
+    kb-row-up: "Up,Control+p,ISO_Left_Tab";
+    kb-row-down: "Down,Control+n";
+}
+```
+
+</Accordion>
+
+## Custom Scripts and Modi
+
+### Power Menu Script
+
+Create `~/.config/rofi/powermenu.sh`:
+
+```bash
+#!/usr/bin/env bash
+
+options="Shutdown\nReboot\nLogout\nLock\nSuspend"
+
+selected=$(echo -e "$options" | rofi -dmenu -i -p "Power Menu")
+
+case $selected in
+    Shutdown)
+        systemctl poweroff
+        ;;
+    Reboot)
+        systemctl reboot
+        ;;
+    Logout)
+        i3-msg exit
+        ;;
+    Lock)
+        i3lock -c 000000
+        ;;
+    Suspend)
+        systemctl suspend
+        ;;
+esac
+```
+
+Make it executable:
+
+```bash
+chmod +x ~/.config/rofi/powermenu.sh
+```
+
+### Custom Modi Example
+
+<Steps>
+
+1. **Create script** at `~/.config/rofi/scripts/custom-modi.sh`
+
+2. **Make it executable:**
+
+```bash
+chmod +x ~/.config/rofi/scripts/custom-modi.sh
+```
+
+3. **Add to Rofi config:**
+
+```rasi
+configuration {
+    modi: "window,drun,run,custom:~/.config/rofi/scripts/custom-modi.sh";
+}
+```
+
+4. **Launch with:**
+
+```bash
+rofi -show custom
+```
+
+</Steps>
+
+## Calculator Plugin
+
+### Installation
+
+```bash
+# Arch Linux
+sudo pacman -S rofi-calc
+
+# Build from source
+git clone https://github.com/svenstaro/rofi-calc
+cd rofi-calc
+make
+sudo make install
+```
+
+### Usage
+
+```bash
+rofi -show calc -modi calc -no-show-match -no-sort
+```
+
+<Note>
+Results are automatically copied to clipboard when selected.
+</Note>
+
+## Command Line Options
+
+### Common Options
+
+```bash
+# Show specific modi
+rofi -show drun
+rofi -show window
+rofi -show run
+
+# Custom prompt
+rofi -show drun -p "Launch:"
+
+# Specific theme
+rofi -show drun -theme Arc-Dark
+
+# Set width
+rofi -show drun -width 600
+
+# Set lines
+rofi -show drun -lines 10
+
+# Case-sensitive matching
+rofi -show drun -case-sensitive
+
+# Fullscreen
+rofi -show drun -fullscreen
+```
+
+## Troubleshooting
+
+<Steps>
+
+### Test Configuration
+
+```bash
+rofi -dump-config
+```
+
+### Check for Errors
+
+```bash
+rofi -show drun -no-config
+```
+
+### Verify Theme Syntax
+
+```bash
+rofi -rasi-validate ~/.config/rofi/themes/custom.rasi
+```
+
+### Debug Mode
+
+```bash
+rofi -show drun -debug
+```
+
+</Steps>
+
+<Warning>
+**Common Issues:**
+
+- **No icons showing:** Install icon theme and verify `show-icons: true`
+- **Theme not loading:** Check file paths and syntax
+- **Slow performance:** Reduce `max-history-size` or disable icons
+- **Modi not working:** Verify plugins are installed
+</Warning>
+
+## Integration with i3
+
+### Recommended Bindings
+
+Add to i3 config:
+
+```bash
+# Application launcher
+bindsym $mod+d exec --no-startup-id rofi -show drun
+
+# Window switcher
+bindsym $mod+Tab exec --no-startup-id rofi -show window
+
+# Run command
+bindsym $mod+Shift+d exec --no-startup-id rofi -show run
+
+# SSH launcher
+bindsym $mod+Shift+s exec --no-startup-id rofi -show ssh
+
+# Clipboard manager (requires greenclip)
+bindsym $mod+c exec --no-startup-id rofi -modi "clipboard:greenclip print" -show clipboard
+```
+
+## Performance Tips
+
+<Accordion title="Optimization Settings">
+
+```rasi
+configuration {
+    /* Faster matching */
+    sort: false;
+    
+    /* Reduce cached items */
+    max-history-size: 10;
+    
+    /* Disable desktop cache for faster startup */
+    drun-use-desktop-cache: false;
+    
+    /* Limit threads */
+    threads: 0;  /* 0 = auto-detect */
+}
+```
+
+</Accordion>

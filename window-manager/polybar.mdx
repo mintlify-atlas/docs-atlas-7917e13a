@@ -1,0 +1,558 @@
+---
+title: "Polybar Status Bar Setup"
+description: "Configure Polybar with custom modules, styling, and integrations for i3 window manager"
+---
+
+# Polybar Status Bar Setup
+
+Polybar is a highly customizable status bar for X window managers. This guide covers the complete configuration used with i3.
+
+## Overview
+
+**Configuration file:** `~/.config/polybar/config.ini`
+
+Polybar provides system information, workspace indicators, and custom scripts in a sleek status bar.
+
+## Bar Configuration
+
+### Main Bar Setup
+
+```ini
+[bar/main]
+monitor = ${env:MONITOR}
+monitor-strict = false
+override-redirect = false
+
+width = 100%
+height = 32
+fixed-center = true
+
+background = ${colors.background}
+foreground = ${colors.foreground}
+
+border-top-size = 0
+border-bottom-size = 0
+padding = 2
+
+module-margin-left = 1.5
+module-margin-right = 1.5
+
+line-size = 1
+bottom = false
+```
+
+### Module Layout
+
+```ini
+modules-left = spotify xwindow pulseaudio
+modules-center = i3
+modules-right = tray network memory-mb cpu date time xbacklight wlan battery
+```
+
+<Note>
+Modules are organized into three sections: left, center, and right of the bar.
+</Note>
+
+## Font Configuration
+
+```ini
+font-0 = "JetBrainsMonoNL Nerd Font:style=Regular:size=9;3"
+font-1 = "JetBrainsMonoNL Nerd Font:style=Bold:size=9;3"
+font-2 = "JetBrainsMonoNL Nerd Font:style=Italic:size=9;3"
+```
+
+<Warning>
+Nerd Fonts are required for icon rendering. Install JetBrainsMono Nerd Font or adjust to your available fonts.
+</Warning>
+
+## i3 Workspace Module
+
+### Basic Configuration
+
+```ini
+[module/i3]
+type = internal/i3
+pin-workspaces = true
+index-sort = true
+wrapping-scroll = false
+format = <label-state> <label-mode>
+fuzzy-match = true
+```
+
+### Workspace Icons
+
+<Accordion title="Roman Numeral Style (Active)">
+
+```ini
+ws-icon-0 = 0;0
+ws-icon-1 = 1;I
+ws-icon-2 = 2;II
+ws-icon-3 = 3;III
+ws-icon-4 = 4;IV
+ws-icon-5 = 5;V
+ws-icon-6 = 6;VI
+ws-icon-7 = 7;VII
+ws-icon-8 = 8;VIII
+ws-icon-9 = 9;IX
+ws-icon-10 = 10;X
+ws-icon-11 = 11;Ms
+ws-icon-12 = 12;Teams
+ws-icon-13 = 13;Front
+ws-icon-14 = 14;Back
+ws-icon-20 = 20;
+```
+
+</Accordion>
+
+<Accordion title="Alternative Icon Styles (Commented)">
+
+The config includes several alternative icon schemes:
+
+- Nerd Font icons (emoji-style)
+- Named workspaces (Fire, Code, Work, etc.)
+- Greek letters (α, β, γ, etc.)
+
+Uncomment your preferred style in the config file.
+
+</Accordion>
+
+### Workspace Styling
+
+```ini
+# Focused workspace
+label-focused = ${self.workspace-label}
+label-focused-foreground = ${colors.background-dark}
+label-focused-underline = ${colors.hover}
+label-focused-background = ${colors.hover}
+label-focused-padding = 2
+
+# Unfocused workspaces
+label-unfocused = ${self.workspace-label}
+label-unfocused-padding = 2
+
+# Visible on other monitors
+label-visible = ${self.workspace-label}
+label-visible-foreground = ${self.label-focused-foreground}
+label-visible-underline = ${self.label-focused-underline}
+label-visible-background = ${self.label-focused-background}
+label-visible-padding = 2
+
+# Urgent workspaces
+label-urgent = ${self.workspace-label}
+label-urgent-background = ${colors.color5}
+label-urgent-foreground = ${colors.color15}
+label-urgent-padding = 2
+```
+
+## System Monitoring Modules
+
+### CPU Module
+
+```ini
+[module/cpu]
+type = internal/cpu
+interval = 0.5
+
+format = <label>
+format-padding = 1
+format-underline = ${colors.underline}
+format-prefix = " "
+label = %percentage%%
+```
+
+### Memory Module
+
+<Accordion title="Custom Script (Active)">
+
+```ini
+[module/memory-mb]
+type = custom/script
+exec = free -m | awk '/^Mem:/ {printf "%.1f\n", $3/1000}'
+interval = 1
+
+format = <label>
+format-padding = 1
+format-underline = ${colors.underline}
+format-background = ${colors.background}
+format-prefix = " "
+label = %output% GB
+```
+
+</Accordion>
+
+<Accordion title="Built-in Memory Module">
+
+```ini
+[module/memory]
+type = internal/memory
+interval = 0.5
+
+format-prefix-foreground = ${colors.color15}
+format-padding = 1
+format-underline = ${colors.underline}
+format-background = ${colors.background}
+format-prefix = " "
+label = %{T2}%percentage_used%%%{T-}%
+```
+
+</Accordion>
+
+### Temperature Module
+
+```ini
+[module/temperature]
+type = internal/temperature
+thermal-zone = 0
+interval = 0.5
+base-temperature = 45
+warn-temperature = 70
+
+format-prefix = " "
+format = <label>
+format-warn = <label-warn>
+
+format-padding = 1
+format-underline = ${colors.underline}
+
+label = %temperature-c%
+label-warn = %temperature-c%
+label-warn-foreground = ${colors.color1}
+```
+
+<Note>
+Adjust `thermal-zone` based on your system. Find available zones with: `ls /sys/class/thermal/`
+</Note>
+
+## Network Module
+
+```ini
+[module/network]
+type = internal/network
+interface = enp6s0
+interval = 2.0
+
+format-connected-underline = ${colors.underline}
+label-connected = 󱘖 %netspeed%
+
+label-disconnected = 󰌙 not connected
+label-disconnected-foreground = #66ffff
+
+ramp-signal-0 = 󰤯
+ramp-signal-1 = 󰤟
+ramp-signal-2 = 󰤢
+ramp-signal-3 = 󰤥
+ramp-signal-4 = 󰤨
+```
+
+<Warning>
+Change `interface = enp6s0` to match your network interface name. Find it with: `ip link`
+</Warning>
+
+## Audio Module
+
+```ini
+[module/pulseaudio]
+type = internal/pulseaudio
+
+format-volume = <ramp-volume> <label-volume>
+label-volume = "%percentage%%"
+label-volume-padding = 1
+
+ramp-volume-0 = 
+ramp-volume-1 = 
+ramp-volume-2 = 
+
+format-muted = <label-muted>
+format-muted-prefix = ""
+format-muted-prefix-padding = 1
+label-muted = %percentage%%
+label-muted-padding = 1
+
+click-right = pavucontrol&
+```
+
+<Note>
+Right-click the volume module to open PulseAudio Volume Control (pavucontrol).
+</Note>
+
+## Battery Module
+
+```ini
+[module/battery]
+type = internal/battery
+battery = BAT0
+adapter = AC0
+full-at = 98
+
+format-padding = 1
+format-underline = ${colors.underline}
+
+# Discharging state
+format-discharging = <ramp-capacity> <label-discharging>
+label-discharging = " %{T2}%percentage%%%{T-}"
+
+ramp-capacity-0 = 󰁺
+ramp-capacity-1 = 󰁻
+ramp-capacity-2 = 󰁼
+ramp-capacity-3 = 󰁽
+ramp-capacity-4 = 󰁾
+ramp-capacity-5 = 󰁿
+ramp-capacity-6 = 󰂀
+ramp-capacity-7 = 󰂁
+ramp-capacity-8 = 󰂂
+ramp-capacity-9 = 󰁹
+ramp-capacity-0-foreground = ${colors.color1}
+
+# Charging state
+format-charging = 󰂄 <animation-charging> <label-charging>
+label-charging = " %{T2}%percentage%%%{T-}"
+
+animation-charging-framerate = 800
+animation-charging-foreground = ${colors.color4}
+
+# Full state
+format-full = <label-full>
+format-full-prefix = "󰁹 "
+format-full-prefix-foreground = ${colors.color4}
+label-full = %{T2}%percentage%%%{T-}
+```
+
+## Date and Time Modules
+
+### Date Module
+
+```ini
+[module/date]
+type = internal/date
+interval = 1.0
+
+time = "%m/%d"
+time-alt = "%A, %B %d"
+
+format-underline = ${colors.underline}
+format-background = ${colors.background}
+format-padding = 1
+format-prefix = "󱨰 "
+label = %{T2}%time%%{T-}
+```
+
+### Time Module
+
+```ini
+[module/time]
+type = internal/date
+interval = 1
+
+time = "%H:%M"
+time-alt = "%H:%M:%S"
+
+format = <label>
+format-underline = ${colors.underline}
+format-padding = 1
+format-prefix = "󰥔 "
+label = %{T2}%time%%{T-}
+```
+
+<Note>
+Click on date/time modules to toggle between display formats.
+</Note>
+
+## Custom Modules
+
+### Spotify Module
+
+```ini
+[module/spotify]
+type = custom/script
+exec = ~/dotfiles/.config/polybar/scripts/spotify.py
+interval = 1
+
+format = <label>
+format-prefix = ""
+format-prefix-foreground = #1DB954
+format-padding = 2
+format-background = ${colors.background}
+format-foreground = ${colors.color15}
+format-underline = ${colors.color15}
+
+label = %output:0:150%
+```
+
+<Note>
+Requires a custom Python script at `~/dotfiles/.config/polybar/scripts/spotify.py` to fetch Spotify track info.
+</Note>
+
+### Window Title Module
+
+```ini
+[module/xwindow]
+type = internal/xwindow
+
+format-prefix = ""
+label = %{T2}%title%%{T-}
+label-maxlen = 24
+
+label-empty = Desktop
+label-empty-foreground = #707880
+
+format-foreground = ${colors.foreground}
+format-underline = ${colors.underline}
+format-background = ${colors.background}
+format-padding = 1
+```
+
+### System Tray
+
+```ini
+[module/tray]
+type = internal/tray
+
+format-margin = 2px
+tray-padding = 2px
+tray-spacing = 4px
+tray-size = 12px
+```
+
+## Backlight Control
+
+```ini
+[module/xbacklight]
+type = internal/xbacklight
+
+output = DP-4
+format = <label> <bar>
+label = 󰃠
+
+bar-width = 10
+bar-indicator = |
+bar-indicator-foreground = #fff
+bar-indicator-font = 2
+bar-fill = ─
+bar-fill-font = 2
+bar-fill-foreground = #9f78e1
+bar-empty = ─
+bar-empty-font = 2
+bar-empty-foreground = ${colors.foreground}
+```
+
+## Launching Polybar
+
+### Launch Script
+
+Create `~/.config/polybar/launch.sh`:
+
+```bash
+#!/usr/bin/env bash
+
+# Terminate already running bar instances
+killall -q polybar
+
+# Wait until the processes have been shut down
+while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
+
+# Launch Polybar for each monitor
+if type "xrandr"; then
+  for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+    MONITOR=$m polybar --reload main &
+  done
+else
+  polybar --reload main &
+fi
+
+echo "Polybar launched..."
+```
+
+Make it executable:
+
+```bash
+chmod +x ~/.config/polybar/launch.sh
+```
+
+### Auto-start with i3
+
+Add to i3 config:
+
+```bash
+exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+```
+
+## Color Themes
+
+Polybar uses a separate colors file:
+
+```ini
+include-file = ~/dotfiles/.config/polybar/theme/colors.ini
+```
+
+Create your color scheme in `colors.ini`:
+
+```ini
+[colors]
+background = #1e1e2e
+background-dark = #11111b
+foreground = #cdd6f4
+hover = #89b4fa
+underline = #89dceb
+color1 = #f38ba8
+color4 = #94e2d5
+color5 = #f9e2af
+color15 = #ffffff
+```
+
+## Testing and Debugging
+
+<Steps>
+
+1. Test configuration syntax:
+
+```bash
+polybar --reload main
+```
+
+2. Run in foreground to see errors:
+
+```bash
+polybar main
+```
+
+3. Check logs:
+
+```bash
+journalctl -f --user-unit=polybar
+```
+
+</Steps>
+
+<Warning>
+Invalid module names or missing scripts will prevent Polybar from starting. Check error messages carefully.
+</Warning>
+
+## Advanced Configuration
+
+### IPC Support
+
+```ini
+enable-ipc = true
+```
+
+Enables polybar-msg for runtime control:
+
+```bash
+polybar-msg cmd toggle
+polybar-msg cmd show
+polybar-msg cmd hide
+```
+
+### Module-Specific Actions
+
+Many modules support click actions:
+
+```ini
+click-left = command
+click-middle = command
+click-right = command
+scroll-up = command
+scroll-down = command
+```
+
+Example usage in the network module to open network settings on click.

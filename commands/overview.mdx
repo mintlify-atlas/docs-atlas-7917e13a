@@ -1,0 +1,332 @@
+---
+title: 'Command-Line Utilities Overview'
+description: 'Collection of custom command-line utilities for system management, dotfile handling, and productivity'
+---
+
+## Overview
+
+This collection includes various custom command-line utilities designed to streamline system administration, dotfile management, development workflows, and entertainment tasks. All utilities are shell scripts optimized for Unix-like systems.
+
+## Available Commands
+
+### Core System Management
+
+<CardGroup cols={2}>
+  <Card title="stot" icon="link" href="/commands/stot">
+    Dotfile management wrapper for symlinking and copying configuration files
+  </Card>
+  
+  <Card title="update" icon="arrow-up" href="/commands/update">
+    System-wide update utility for packages, tools, and plugins
+  </Card>
+  
+  <Card title="radio" icon="radio" href="/commands/radio">
+    Interactive internet radio streaming with station selection
+  </Card>
+  
+  <Card title="pass" icon="key" href="#password-generator">
+    Secure random password generator using /dev/urandom
+  </Card>
+</CardGroup>
+
+### Development Utilities
+
+<CardGroup cols={2}>
+  <Card title="ccl" icon="c" href="#c-compiler-wrapper">
+    Quick compile and run wrapper for C programs
+  </Card>
+  
+  <Card title="cclp" icon="code" href="#cpp-compiler-wrapper">
+    Quick compile and run wrapper for C++ programs
+  </Card>
+  
+  <Card title="git-remote" icon="github" href="#git-remote-helper">
+    Simplified git remote repository setup and push
+  </Card>
+  
+  <Card title="gpt-import" icon="key" href="#gpg-key-importer">
+    GPG key import utility for package verification
+  </Card>
+</CardGroup>
+
+### System Utilities
+
+<CardGroup cols={2}>
+  <Card title="color" icon="palette" href="#terminal-color-chart">
+    Display ANSI color codes chart for terminal customization
+  </Card>
+  
+  <Card title="PATH" icon="route" href="#path-viewer">
+    Pretty-print PATH environment variable
+  </Card>
+  
+  <Card title="systemctl-enable" icon="server" href="#systemctl-helper">
+    Interactive systemctl service enabler with status display
+  </Card>
+  
+  <Card title="echo_separate" icon="minus" href="#formatted-output">
+    Print formatted section headers for terminal output
+  </Card>
+</CardGroup>
+
+### Window Manager & Desktop
+
+<CardGroup cols={2}>
+  <Card title="i3-layout-save" icon="save" href="#i3-layout-save">
+    Save i3 window manager workspace layouts
+  </Card>
+  
+  <Card title="i3load" icon="upload" href="#i3-layout-load">
+    Load saved i3 workspace layouts
+  </Card>
+  
+  <Card title="wallpaper" icon="image" href="#animated-wallpaper">
+    Set animated wallpapers using xwinwrap and mpv
+  </Card>
+  
+  <Card title="wallpaper-convert" icon="film" href="#video-converter">
+    Convert MP4 videos to optimized WebM format
+  </Card>
+</CardGroup>
+
+---
+
+## Quick Reference
+
+### Password Generator
+
+```bash pass
+pass
+```
+
+Generates a 42-character random password and copies it to clipboard.
+
+### C Compiler Wrapper
+
+```bash ccl
+ccl program.c
+```
+
+Compiles and immediately runs a C program.
+
+### C++ Compiler Wrapper
+
+```bash cclp
+cclp program.cpp
+```
+
+Compiles and immediately runs a C++ program with standard library support.
+
+### Git Remote Helper
+
+```bash git-remote
+git-remote https://github.com/user/repo.git
+```
+
+Adds remote origin and pushes to main branch.
+
+### GPG Key Importer
+
+```bash gpt-import
+gpt-import KEY_ID
+```
+
+Imports GPG keys from keyserver pool for package verification.
+
+### Terminal Color Chart
+
+```bash color
+color
+```
+
+Displays comprehensive ANSI color code reference.
+
+### PATH Viewer
+
+```bash PATH
+PATH
+```
+
+Displays PATH entries one per line for easy reading.
+
+### Systemctl Helper
+
+```bash systemctl-enable
+systemctl-enable service-name
+```
+
+Enables, restarts, and displays status of a systemd service.
+
+### Formatted Output
+
+```bash echo_separate
+echo_separate "Section Title"
+```
+
+Prints a formatted header with equal signs for visual separation.
+
+### i3 Layout Save
+
+```bash i3-layout-save
+i3-layout-save 1
+i3-layout-save 1 custom-name
+```
+
+Saves current i3 workspace layout to JSON file.
+
+### i3 Layout Load
+
+```bash i3load
+i3load 1
+i3load 1 custom-name
+```
+
+Loads saved i3 workspace layout.
+
+### Animated Wallpaper
+
+```bash wallpaper
+wallpaper /path/to/video.mp4
+```
+
+Sets video as animated wallpaper on dual monitors.
+
+### Video Converter
+
+```bash wallpaper-convert
+wallpaper-convert inputfile
+```
+
+Converts inputfile.mp4 to inputfile.webm with VP9 codec.
+
+---
+
+## Installation
+
+<Steps>
+  <Step title="Clone Repository">
+    Clone the source repository containing all utilities:
+    ```bash
+    git clone <repository-url> ~/workspace/source
+    ```
+  </Step>
+  
+  <Step title="Add to PATH">
+    Add the bin directory to your PATH in your shell configuration:
+    ```bash
+    echo 'export PATH="$HOME/workspace/source/bin:$PATH"' >> ~/.bashrc
+    # or for zsh
+    echo 'export PATH="$HOME/workspace/source/bin:$PATH"' >> ~/.zshrc
+    ```
+  </Step>
+  
+  <Step title="Reload Shell">
+    Reload your shell configuration:
+    ```bash
+    source ~/.bashrc
+    # or for zsh
+    source ~/.zshrc
+    ```
+  </Step>
+  
+  <Step title="Verify Installation">
+    Test that commands are available:
+    ```bash
+    which stot
+    stot -h
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Requirements
+
+Different utilities have different dependencies:
+
+### Core Requirements
+- Bash 4.0+
+- Zsh (for update utility)
+- Standard Unix utilities (ln, cp, mkdir, etc.)
+
+### Optional Dependencies
+- **mpv**: Required for radio and wallpaper commands
+- **xwinwrap**: Required for animated wallpapers
+- **ffmpeg**: Required for video conversion
+- **yay/pacman**: Required for update command (Arch Linux)
+- **tldr**: Enhanced for update command
+- **zinit**: Enhanced for update command
+- **i3-save-tree/i3-msg**: Required for i3 utilities
+- **xsel**: Required for password utility
+- **notify-send**: Required for notifications
+
+---
+
+## Common Use Cases
+
+### Setting Up Dotfiles
+
+Use `stot` to symlink configuration files from your dotfiles repository:
+
+```bash
+stot -l .vimrc
+stot -l .config/i3
+stot -l .zshrc
+```
+
+### System Updates
+
+Run the comprehensive update utility:
+
+```bash
+update
+# or with all packages
+update --all
+```
+
+### Development Workflow
+
+Quickly test C/C++ programs during development:
+
+```bash
+ccl test.c
+cclp algorithm.cpp
+```
+
+### Entertainment
+
+Listen to internet radio while working:
+
+```bash
+radio
+# Select station with arrow keys
+```
+
+---
+
+## Contributing
+
+These utilities are designed to be simple, readable, and easily customizable. Feel free to:
+
+- Fork and modify for your needs
+- Add new radio stations to the `radio` script
+- Customize the `update` script for your package manager
+- Adapt `stot` for your dotfiles structure
+
+---
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Dotfile Management" icon="folder-tree" href="/commands/stot">
+    Deep dive into the stot utility
+  </Card>
+  
+  <Card title="System Updates" icon="download" href="/commands/update">
+    Complete guide to the update utility
+  </Card>
+  
+  <Card title="Radio Streaming" icon="tower-broadcast" href="/commands/radio">
+    Configure and use the radio utility
+  </Card>
+</CardGroup>

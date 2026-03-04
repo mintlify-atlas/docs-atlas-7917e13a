@@ -1,0 +1,534 @@
+---
+title: Tmux Terminal Multiplexer
+description: Terminal multiplexer configuration for session and window management
+---
+
+## Overview
+
+Tmux (terminal multiplexer) allows you to manage multiple terminal sessions within a single window. This configuration provides a clean, efficient setup with Ctrl+A as the prefix key and mouse support enabled.
+
+## Features
+
+- **Session Management**: Persist terminal sessions across disconnections
+- **Window Splitting**: Horizontal and vertical panes
+- **Mouse Support**: Click to switch panes and resize
+- **Custom Status Bar**: Session and window information
+- **Extensive History**: 20,000 lines of scrollback
+
+## Installation
+
+<Tabs>
+  <Tab title="macOS">
+    ```bash
+    brew install tmux
+    ```
+  </Tab>
+  <Tab title="Ubuntu/Debian">
+    ```bash
+    sudo apt install tmux
+    ```
+  </Tab>
+  <Tab title="Arch Linux">
+    ```bash
+    sudo pacman -S tmux
+    ```
+  </Tab>
+</Tabs>
+
+## Configuration
+
+Copy the configuration file to your home directory:
+
+```bash
+cp ~/workspace/source/.config/tmux/.tmux.conf ~/.tmux.conf
+```
+
+Reload configuration:
+```bash
+tmux source-file ~/.tmux.conf
+```
+
+## Basic Concepts
+
+<CardGroup cols={3}>
+  <Card title="Session" icon="window">
+    A collection of windows, can be detached and reattached
+  </Card>
+  <Card title="Window" icon="table-columns">
+    A full-screen workspace, like a tab in a browser
+  </Card>
+  <Card title="Pane" icon="grip-vertical">
+    A split section within a window
+  </Card>
+</CardGroup>
+
+## Prefix Key
+
+The configuration changes the default prefix from `Ctrl+B` to `Ctrl+A`:
+
+```conf
+unbind C-b
+set -g prefix C-a
+```
+
+<Note>
+  Throughout this documentation, `C-a` means `Ctrl+A`. All tmux commands start with the prefix key.
+</Note>
+
+## Essential Commands
+
+### Session Management
+
+<AccordionGroup>
+  <Accordion title="Create and Attach Sessions">
+    ```bash
+    # Create new session
+    tmux new -s myproject
+    
+    # Create named session with specific directory
+    tmux new -s myproject -c ~/projects/myproject
+    
+    # List sessions
+    tmux ls
+    
+    # Attach to session
+    tmux attach -t myproject
+    
+    # Attach to last session
+    tmux attach
+    ```
+  </Accordion>
+  
+  <Accordion title="Detach and Switch Sessions">
+    | Command | Action |
+    |---------|--------|
+    | `C-a d` | Detach from session |
+    | `C-a s` | List and switch sessions |
+    | `C-a $` | Rename session |
+    | `C-a (` | Switch to previous session |
+    | `C-a )` | Switch to next session |
+  </Accordion>
+</AccordionGroup>
+
+### Window Management
+
+| Command | Action |
+|---------|--------|
+| `C-a c` | Create new window |
+| `C-a ,` | Rename current window |
+| `C-a n` | Next window |
+| `C-a p` | Previous window |
+| `C-a 0-9` | Switch to window by number |
+| `C-a &` | Kill current window |
+| `C-a w` | List windows |
+
+### Pane Management
+
+<Tabs>
+  <Tab title="Splitting">
+    | Command | Action |
+    |---------|--------|
+    | `C-a %` | Split pane vertically |
+    | `C-a "` | Split pane horizontally |
+  </Tab>
+  
+  <Tab title="Navigation">
+    | Command | Action |
+    |---------|--------|
+    | `C-a arrow` | Switch to pane in direction |
+    | `C-a o` | Switch to next pane |
+    | `C-a ;` | Switch to last active pane |
+    | `C-a q` | Show pane numbers |
+  </Tab>
+  
+  <Tab title="Resizing">
+    | Command | Action |
+    |---------|--------|
+    | `C-a C-arrow` | Resize pane in direction |
+    | `C-a Alt-arrow` | Resize pane in direction (5 cells) |
+  </Tab>
+  
+  <Tab title="Operations">
+    | Command | Action |
+    |---------|--------|
+    | `C-a x` | Kill current pane |
+    | `C-a !` | Break pane into window |
+    | `C-a z` | Toggle pane zoom |
+    | `C-a {` | Move pane left |
+    | `C-a }` | Move pane right |
+  </Tab>
+</Tabs>
+
+## Configuration Settings
+
+### General Settings
+
+```conf
+# History and buffer settings
+set -g history-limit 20000
+set -g buffer-limit 20
+set -g repeat-time 500
+
+# Enable mouse support
+set -g mouse on
+
+# Display settings
+set -g display-time 1500
+set -g display-panes-time 1000
+```
+
+<Tip>
+  With mouse support enabled, you can:
+  - Click to switch panes
+  - Drag pane borders to resize
+  - Click on status bar to switch windows
+  - Right-click for context menu
+</Tip>
+
+### Status Bar Configuration
+
+```conf
+set -g status on
+set -g status-position bottom
+set -g status-style bg=green,fg=black
+set -g status-interval 15
+set -g status-justify left
+
+# Left status
+set -g status-left "[#{session_name}] "
+set -g status-left-length 10
+
+# Right status
+set -g status-right "#{?window_bigger,[#{window_offset_x}#,#{window_offset_y}] ,}\"#{=21:pane_title}\" %H:%M %d-%b-%y"
+set -g status-right-length 40
+```
+
+**Status Bar Format**:
+- **Left**: `[session_name]`
+- **Center**: Window list
+- **Right**: Pane title, time, and date
+
+### Default Settings
+
+```conf
+set -g base-index 0                # Start window numbering at 0
+set -g default-shell /usr/bin/zsh  # Use Zsh as default shell
+set -g default-size 80x24          # Default window size
+```
+
+### Message and Command Styles
+
+```conf
+set -g message-style bg=yellow,fg=black
+set -g message-command-style bg=black,fg=yellow
+```
+
+## Copy Mode
+
+Tmux has a powerful copy mode for selecting and copying text.
+
+### Enter Copy Mode
+
+```bash
+C-a [    # Enter copy mode
+```
+
+### Navigation in Copy Mode
+
+| Key | Action |
+|-----|--------|
+| `↑↓←→` | Move cursor |
+| `Space` | Start selection |
+| `Enter` | Copy selection |
+| `q` | Exit copy mode |
+| `g` | Go to top |
+| `G` | Go to bottom |
+| `/` | Search forward |
+| `?` | Search backward |
+| `n` | Next search result |
+| `N` | Previous search result |
+
+### Paste Buffer
+
+```bash
+C-a ]    # Paste buffer
+C-a =    # Choose buffer to paste
+```
+
+## Mouse Support
+
+The configuration enables full mouse support:
+
+```conf
+set -g mouse on
+```
+
+**Mouse Actions**:
+- **Click** - Select pane
+- **Double-click** - Select word
+- **Triple-click** - Select line
+- **Drag** - Select text (automatically copied)
+- **Drag border** - Resize pane
+- **Wheel** - Scroll history
+
+## Environment Variables
+
+Tmux updates specific environment variables when attaching:
+
+```conf
+set -g update-environment[0] DISPLAY
+set -g update-environment[1] KRB5CCNAME
+set -g update-environment[2] SSH_ASKPASS
+set -g update-environment[3] SSH_AUTH_SOCK
+set -g update-environment[4] SSH_AGENT_PID
+set -g update-environment[5] SSH_CONNECTION
+set -g update-environment[6] WINDOWID
+set -g update-environment[7] XAUTHORITY
+```
+
+## Common Workflows
+
+### Development Workflow
+
+<Steps>
+  <Step title="Create project session">
+    ```bash
+    tmux new -s myproject
+    ```
+  </Step>
+  
+  <Step title="Split into panes">
+    - `C-a %` - Split vertically (editor | terminal)
+    - `C-a "` - Split bottom pane horizontally (terminal | logs)
+  </Step>
+  
+  <Step title="Detach when done">
+    ```bash
+    C-a d
+    ```
+  </Step>
+  
+  <Step title="Reattach later">
+    ```bash
+    tmux attach -t myproject
+    ```
+  </Step>
+</Steps>
+
+### SSH Session Persistence
+
+<Steps>
+  <Step title="Start tmux on remote server">
+    ```bash
+    ssh user@server
+    tmux new -s work
+    ```
+  </Step>
+  
+  <Step title="Do your work">
+    Long-running processes remain active
+  </Step>
+  
+  <Step title="Detach and disconnect">
+    ```bash
+    C-a d
+    exit
+    ```
+  </Step>
+  
+  <Step title="Reconnect and reattach">
+    ```bash
+    ssh user@server
+    tmux attach -t work
+    ```
+  </Step>
+</Steps>
+
+## Advanced Configuration
+
+### Custom Key Bindings
+
+Add to `~/.tmux.conf`:
+
+```conf
+# Reload configuration
+bind r source-file ~/.tmux.conf \; display "Config reloaded!"
+
+# Better pane splitting
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+
+# Vim-style pane navigation
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+```
+
+### Status Bar Customization
+
+```conf
+# Change colors
+set -g status-style bg=blue,fg=white
+
+# Add more information
+set -g status-right "#(whoami)@#H | %H:%M %d-%b-%y"
+
+# Show load average
+set -g status-right "#(uptime | cut -d',' -f 3-) | %H:%M"
+```
+
+### Plugins with TPM
+
+Install Tmux Plugin Manager:
+
+```bash
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+```
+
+Add to `~/.tmux.conf`:
+```conf
+# List of plugins
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+
+# Initialize TPM (keep at bottom)
+run '~/.tmux/plugins/tpm/tpm'
+```
+
+Install plugins: `C-a I`
+
+## Tips and Tricks
+
+<AccordionGroup>
+  <Accordion title="Quick Session Switcher">
+    Create a shell function:
+    ```bash
+    # Add to ~/.zshrc
+    tm() {
+      [[ -n "$TMUX" ]] && change="switch-client" || change="attach-session"
+      if [ $1 ]; then
+        tmux $change -t "$1" 2>/dev/null || (tmux new-session -d -s $1 && tmux $change -t "$1")
+        return
+      fi
+      session=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf --exit-0) &&  tmux $change -t "$session" || echo "No sessions found."
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Synchronize Panes">
+    Send commands to all panes simultaneously:
+    ```bash
+    # Toggle
+    C-a :setw synchronize-panes
+    ```
+    Useful for managing multiple servers.
+  </Accordion>
+  
+  <Accordion title="Zoom Pane">
+    ```bash
+    C-a z    # Toggle full-screen for current pane
+    ```
+  </Accordion>
+  
+  <Accordion title="Command History">
+    ```bash
+    C-a :    # Enter command mode
+    # Then use ↑↓ to navigate history
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Colors look wrong">
+    Add to shell config:
+    ```bash
+    # ~/.zshrc or ~/.bashrc
+    export TERM=screen-256color
+    ```
+    
+    Or in `~/.tmux.conf`:
+    ```conf
+    set -g default-terminal "screen-256color"
+    ```
+  </Accordion>
+  
+  <Accordion title="Mouse scroll enters copy mode">
+    This is normal behavior. Press `q` to exit copy mode, or configure:
+    ```conf
+    set -g mouse on
+    bind -n WheelUpPane if-shell -F -t = "#{mouse_any_flag}" "send-keys -M" "if -Ft= '#{pane_in_mode}' 'send-keys -M' 'select-pane -t=; copy-mode -e; send-keys -M'"
+    ```
+  </Accordion>
+  
+  <Accordion title="Pasting doesn't work">
+    Ensure you're in a tmux session:
+    ```bash
+    echo $TMUX
+    ```
+    Use `C-a ]` to paste from tmux buffer.
+  </Accordion>
+  
+  <Accordion title="SSH agent forwarding broken">
+    Fix socket link:
+    ```bash
+    # Add to ~/.zshrc
+    if [[ -S "$SSH_AUTH_SOCK" && ! -h "$SSH_AUTH_SOCK" ]]; then
+      ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
+    fi
+    export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Cheat Sheet
+
+### Quick Reference
+
+<CodeGroup>
+```bash Sessions
+tmux                    # Start new session
+tmux new -s name        # Start named session  
+tmux ls                 # List sessions
+tmux attach -t name     # Attach to session
+C-a d                   # Detach from session
+C-a s                   # Switch sessions
+C-a $                   # Rename session
+```
+
+```bash Windows
+C-a c                   # Create window
+C-a ,                   # Rename window
+C-a n                   # Next window
+C-a p                   # Previous window
+C-a 0-9                 # Switch to window #
+C-a &                   # Kill window
+```
+
+```bash Panes
+C-a %                   # Split vertically
+C-a "                   # Split horizontally
+C-a arrow               # Navigate panes
+C-a C-arrow             # Resize pane
+C-a x                   # Kill pane
+C-a z                   # Toggle zoom
+```
+
+```bash Copy Mode
+C-a [                   # Enter copy mode
+Space                   # Start selection
+Enter                   # Copy selection
+C-a ]                   # Paste buffer
+q                       # Exit copy mode
+```
+</CodeGroup>
+
+## Resources
+
+- [Tmux Manual](https://man.openbsd.org/tmux)
+- [Tmux Wiki](https://github.com/tmux/tmux/wiki)
+- [Tmux Cheat Sheet](https://tmuxcheatsheet.com/)
+- [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm)

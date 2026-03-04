@@ -1,0 +1,339 @@
+---
+title: Doom Emacs Configuration
+description: Personal Doom Emacs configuration with custom keybindings, modules, and packages
+---
+
+## Overview
+
+This Doom Emacs configuration provides a comprehensive development environment with vim keybindings, enhanced UI features, and support for multiple programming languages including Haskell, Elixir, JavaScript, and more.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Evil Mode" icon="keyboard">
+    Vim keybindings everywhere for efficient editing
+  </Card>
+  <Card title="Project Management" icon="folder-tree">
+    Neotree integration for file navigation
+  </Card>
+  <Card title="Multi-Language Support" icon="code">
+    Configured for 15+ programming languages
+  </Card>
+  <Card title="Git Integration" icon="git">
+    Magit for powerful version control
+  </Card>
+</CardGroup>
+
+## Installation
+
+<Steps>
+  <Step title="Install Doom Emacs">
+    ```bash
+    git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.emacs.d
+    ~/.emacs.d/bin/doom install
+    ```
+  </Step>
+  
+  <Step title="Copy Configuration Files">
+    Place the configuration files in `~/.doom.d/`:
+    - `config.el` - Main configuration
+    - `init.el` - Module selection
+    - `packages.el` - Package declarations
+  </Step>
+  
+  <Step title="Sync Configuration">
+    ```bash
+    ~/.emacs.d/bin/doom sync
+    ```
+  </Step>
+  
+  <Step title="Restart Emacs">
+    Launch Emacs to apply the new configuration
+  </Step>
+</Steps>
+
+## Configuration Files
+
+### config.el
+
+Main configuration file with custom keybindings, theme settings, and user preferences.
+
+#### Custom Keybindings
+
+```elisp config.el
+;; Global keys
+(global-set-key [f8] 'neotree-toggle)
+(global-set-key (kbd "C-<tab>") 'other-window)
+(global-set-key (kbd "M-<down>") 'enlarge-window)
+(global-set-key (kbd "M-<up>") 'shrink-window)
+(global-set-key (kbd "M-<right>") 'enlarge-window-horizontally)
+(global-set-key (kbd "M-<left>") 'shrink-window-horizontally)
+```
+
+<AccordionGroup>
+  <Accordion title="Keybinding Reference">
+    | Key | Action |
+    |-----|--------|
+    | `F8` | Toggle Neotree file browser |
+    | `Ctrl+Tab` | Switch between windows |
+    | `Meta+Down` | Enlarge window vertically |
+    | `Meta+Up` | Shrink window vertically |
+    | `Meta+Right` | Enlarge window horizontally |
+    | `Meta+Left` | Shrink window horizontally |
+  </Accordion>
+</AccordionGroup>
+
+#### User Settings
+
+```elisp config.el
+(setq user-full-name "João Pedro"
+      user-mail-address "joaopedroaats@pm.me"
+      doom-theme 'doom-palenight
+      org-directory "~/org/"
+      display-line-numbers-type `relative)
+```
+
+#### Font Configuration
+
+```elisp config.el
+(setq doom-font (font-spec :family "monospace" :size 16)
+     doom-variable-pitch-font (font-spec :family "monospace" :size 16)
+     doom-big-font (font-spec :family "monospace" :size 24))
+```
+
+#### Plugins
+
+```elisp config.el
+;; Neo theme icons
+(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+
+;; Waka time tracking
+(global-wakatime-mode)
+```
+
+### init.el
+
+Module configuration that defines which Doom modules are enabled.
+
+#### Enabled Modules
+
+<Tabs>
+  <Tab title="Completion">
+    - **company**: Code completion backend
+    - **ivy**: Search engine for files and commands
+  </Tab>
+  
+  <Tab title="UI">
+    - **doom**: Core Doom appearance
+    - **doom-dashboard**: Splash screen
+    - **hl-todo**: Highlight TODO/FIXME/NOTE
+    - **ligatures**: Code ligatures support
+    - **minimap**: Code minimap sidebar
+    - **neotree**: File tree explorer
+    - **modeline**: Enhanced status line
+    - **workspaces**: Tab emulation
+  </Tab>
+  
+  <Tab title="Editor">
+    - **evil**: Vim keybindings
+    - **file-templates**: Auto-snippets
+    - **format +onsave**: Auto-formatting
+    - **multiple-cursors**: Multi-cursor editing
+    - **snippets**: Code snippets
+  </Tab>
+  
+  <Tab title="Tools">
+    - **docker**: Docker integration
+    - **editorconfig**: EditorConfig support
+    - **magit**: Git interface
+    - **lookup**: Code navigation
+    - **rgb**: Color string tools
+  </Tab>
+</Tabs>
+
+#### Language Support
+
+```elisp init.el:111
+:lang
+cc                ; C/C++/Obj-C
+elixir            ; Erlang done right
+emacs-lisp        ; Lisp for Emacs
+erlang            ; Erlang
+fsharp            ; F# support
+(haskell +dante)  ; Haskell with Dante
+json              ; JSON files
+javascript        ; JavaScript
+latex             ; LaTeX documents
+markdown          ; Markdown files
+org               ; Org mode
+racket            ; Racket language
+sh                ; Shell scripts
+yaml              ; YAML files
+```
+
+### packages.el
+
+Additional packages beyond the default Doom modules.
+
+```elisp packages.el
+(package! auto-complete)
+(package! which-key)
+(package! magit)
+(package! wakatime-mode)
+(package! nyan-mode)
+(package! emojify)
+
+;; Neotree
+(package! neotree)
+(package! all-the-icons)
+
+;; Theme
+(package! rebecca-theme)
+
+;; Haskell
+(package! haskell-mode)
+
+;; Elixir
+(package! elixir-mode)
+(package! exunit)
+(package! flycheck-credo)
+(package! alchemist)
+(package! mix)
+```
+
+<Note>
+  After modifying `packages.el`, run `doom sync` to install the new packages.
+</Note>
+
+## Usage
+
+### Basic Commands
+
+<CardGroup cols={2}>
+  <Card title="Help System" icon="circle-question">
+    - `SPC h d h` - Access Doom documentation
+    - `K` - View documentation for symbol
+    - `gd` - Jump to definition
+  </Card>
+  
+  <Card title="File Navigation" icon="magnifying-glass">
+    - `SPC .` - Find file
+    - `SPC /` - Search project
+    - `F8` - Toggle Neotree
+  </Card>
+  
+  <Card title="Window Management" icon="window-restore">
+    - `Ctrl+Tab` - Switch windows
+    - `Meta+Arrows` - Resize windows
+    - `SPC w` - Window commands
+  </Card>
+  
+  <Card title="Git Operations" icon="code-branch">
+    - `SPC g g` - Magit status
+    - `SPC g b` - Git blame
+    - `SPC g l` - Git log
+  </Card>
+</CardGroup>
+
+### Terminal Integration
+
+```elisp
+vterm             ; Terminal emulator within Emacs
+```
+
+Access terminal with `SPC o t` for a full-featured terminal inside Emacs.
+
+### Code Editing Features
+
+<Steps>
+  <Step title="Format on Save">
+    Code is automatically formatted when you save files:
+    ```elisp
+(format +onsave)  ; automated prettiness
+    ```
+  </Step>
+  
+  <Step title="Multiple Cursors">
+    Edit multiple locations simultaneously with multiple-cursors mode
+  </Step>
+  
+  <Step title="Syntax Checking">
+    Real-time syntax checking and spell checking enabled:
+    ```elisp
+syntax            ; syntax checking
+spell             ; spell checking
+grammar           ; grammar checking
+    ```
+  </Step>
+</Steps>
+
+## Customization
+
+### Changing the Theme
+
+Edit `config.el` and modify the `doom-theme` variable:
+
+```elisp
+(setq doom-theme 'doom-palenight)  ; Current theme
+;; Other options:
+;; 'doom-one, 'doom-vibrant, 'doom-molokai, 'rebecca
+```
+
+### Adding More Languages
+
+Edit `init.el` in the `:lang` section and add desired language modules:
+
+```elisp
+:lang
+python            ; Enable Python support
+rust              ; Enable Rust support
+go                ; Enable Go support
+```
+
+Then run `doom sync` to apply changes.
+
+### Installing Additional Packages
+
+Add to `packages.el`:
+
+```elisp
+(package! your-package-name)
+```
+
+Run `doom sync` and restart Emacs.
+
+## Troubleshooting
+
+<Warning>
+  If icons don't display correctly in Neotree, install the required fonts:
+  ```elisp
+  M-x all-the-icons-install-fonts
+  ```
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="Reload Configuration">
+    - `SPC h r r` - Reload Doom
+    - Or run `doom sync` from terminal
+  </Accordion>
+  
+  <Accordion title="Check for Issues">
+    ```bash
+    doom doctor
+    ```
+    This command checks for common configuration issues.
+  </Accordion>
+  
+  <Accordion title="Update Doom">
+    ```bash
+    doom upgrade
+    doom sync
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Resources
+
+- [Doom Emacs Documentation](https://docs.doomemacs.org)
+- [Evil Mode Guide](https://evil.readthedocs.io)
+- [Magit User Manual](https://magit.vc/manual/magit/)

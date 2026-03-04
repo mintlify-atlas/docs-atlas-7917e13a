@@ -1,0 +1,502 @@
+---
+title: Neovim Configuration
+description: Lightweight Neovim setup with vim-plug, NERDTree, and essential productivity plugins
+---
+
+## Overview
+
+This Neovim configuration provides a minimal yet powerful development environment using vim-plug for plugin management. It includes file navigation, fuzzy finding, code completion, linting, and productivity enhancements.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Plugin Management" icon="puzzle-piece">
+    vim-plug for simple package management
+  </Card>
+  <Card title="File Navigation" icon="folder-tree">
+    NERDTree and Ranger integration
+  </Card>
+  <Card title="Fuzzy Finding" icon="magnifying-glass">
+    FZF for fast file searching
+  </Card>
+  <Card title="Code Quality" icon="check">
+    ALE for asynchronous linting
+  </Card>
+</CardGroup>
+
+## Installation
+
+<Steps>
+  <Step title="Install Neovim">
+    Install Neovim for your platform:
+    
+    **macOS:**
+    ```bash
+    brew install neovim
+    ```
+    
+    **Ubuntu/Debian:**
+    ```bash
+    sudo apt install neovim
+    ```
+    
+    **Arch Linux:**
+    ```bash
+    sudo pacman -S neovim
+    ```
+  </Step>
+  
+  <Step title="Install vim-plug">
+    ```bash
+    sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
+           https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    ```
+  </Step>
+  
+  <Step title="Copy Configuration">
+    Copy `init.vim` to `~/.config/nvim/init.vim`
+  </Step>
+  
+  <Step title="Install Plugins">
+    Open Neovim and run:
+    ```vim
+    :PlugInstall
+    ```
+    Or press `F12` (custom keybinding)
+  </Step>
+  
+  <Step title="Install External Dependencies">
+    Install Ranger file manager (optional):
+    ```bash
+    pip install ranger-fm
+    ```
+  </Step>
+</Steps>
+
+## Configuration File
+
+### Plugin Setup
+
+The configuration uses vim-plug to manage plugins:
+
+```vim init.vim:1
+call plug#begin()
+   Plug 'scrooloose/nerdtree'
+   Plug 'ervandew/supertab'
+   Plug 'shougo/neocomplete.vim'
+   Plug 'terryma/vim-multiple-cursors'
+   Plug 'wakatime/vim-wakatime'
+   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+   Plug 'w0rp/ale'
+
+   "ncm2 completion
+   Plug 'ncm2/ncm2'
+   Plug 'roxma/nvim-yarp'
+
+   "Ranger
+   Plug 'francoiscabrol/ranger.vim'
+   Plug 'rbgrouleff/bclose.vim'
+
+   "Colors
+   Plug 'sheerun/vim-polyglot'
+   Plug 'joshdick/onedark.vim'
+   Plug 'arzg/vim-colors-xcode'
+   Plug 'arcticicestudio/nord-vim'
+call plug#end()
+```
+
+### Installed Plugins
+
+<Tabs>
+  <Tab title="File Management">
+    <ResponseField name="NERDTree" type="File Explorer">
+      Classic file tree explorer
+      - Toggle with `F8`
+      - Browse project structure
+    </ResponseField>
+    
+    <ResponseField name="Ranger" type="File Manager">
+      Terminal-based file manager integration
+      - Toggle with `Space + f`
+      - Advanced file operations
+    </ResponseField>
+    
+    <ResponseField name="FZF" type="Fuzzy Finder">
+      Fast fuzzy file finder
+      - Open with `Ctrl+p`
+      - Search files instantly
+    </ResponseField>
+  </Tab>
+  
+  <Tab title="Code Completion">
+    <ResponseField name="SuperTab" type="Completion">
+      Tab-based completion trigger
+      - Use `Ctrl+n` for next completion
+    </ResponseField>
+    
+    <ResponseField name="NeoComplete" type="Auto-completion">
+      Automatic code completion engine
+    </ResponseField>
+    
+    <ResponseField name="NCM2" type="Completion Manager">
+      Modern completion framework
+      - Requires nvim-yarp dependency
+    </ResponseField>
+  </Tab>
+  
+  <Tab title="Code Quality">
+    <ResponseField name="ALE" type="Linter">
+      Asynchronous Lint Engine
+      - Real-time error checking
+      - Multi-language support
+      - Shows errors as you type
+    </ResponseField>
+    
+    <ResponseField name="vim-polyglot" type="Syntax">
+      Language pack with syntax highlighting for 100+ languages
+    </ResponseField>
+  </Tab>
+  
+  <Tab title="Productivity">
+    <ResponseField name="vim-multiple-cursors" type="Editing">
+      Multiple cursor editing like Sublime Text
+      - Select multiple occurrences
+      - Edit simultaneously
+    </ResponseField>
+    
+    <ResponseField name="WakaTime" type="Time Tracking">
+      Automatic time tracking for coding sessions
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+### UI Configuration
+
+```vim init.vim:30
+" UI:
+syntax on
+colorscheme 
+set background=dark
+
+set number
+set relativenumber
+```
+
+<Note>
+  The colorscheme line is intentionally empty - choose from installed themes:
+  - `onedark`
+  - `xcode`
+  - `nord`
+</Note>
+
+**Features:**
+- Syntax highlighting enabled
+- Line numbers displayed
+- Relative line numbers for easy navigation
+- Dark background theme
+
+### Editor Settings
+
+```vim init.vim:38
+" Config:
+set mouse=a
+set encoding=utf-8
+set hidden
+set inccommand=split
+```
+
+<AccordionGroup>
+  <Accordion title="Setting Explanations">
+    | Setting | Description |
+    |---------|-------------|
+    | `mouse=a` | Enable mouse support in all modes |
+    | `encoding=utf-8` | Use UTF-8 encoding |
+    | `hidden` | Allow switching buffers without saving |
+    | `inccommand=split` | Show substitution preview in split window |
+  </Accordion>
+</AccordionGroup>
+
+### Custom Keybindings
+
+```vim init.vim:49
+" Plugins
+let g:SuperTabDefaultCompletionType="<C-n>"
+
+map <F8> :NERDTreeToggle <cr>
+map <F12> :PlugInstall <cr>
+
+let mapleader="\<space>"
+nnoremap <leader>; A;<esc>
+nnoremap <leader>ev :vsplit ~/dotfiles/.config/nvim/init.vim<cr>
+nnoremap <leader>sv :source ~/dotfiles/.config/nvim/init.vim<cr>
+
+nnoremap <leader>f :Ranger<cr>
+nnoremap <c-p> :FZF<cr>
+```
+
+## Keybindings Reference
+
+### Function Keys
+
+<CardGroup cols={2}>
+  <Card title="F8" icon="folder-tree">
+    Toggle NERDTree file explorer
+  </Card>
+  <Card title="F12" icon="download">
+    Install/update plugins
+  </Card>
+</CardGroup>
+
+### Leader Key Mappings
+
+The leader key is set to `Space`:
+
+| Keybinding | Action |
+|------------|--------|
+| `Space + ;` | Append semicolon to end of line |
+| `Space + e + v` | Edit init.vim in vertical split |
+| `Space + s + v` | Reload init.vim configuration |
+| `Space + f` | Open Ranger file manager |
+| `Ctrl + p` | Open FZF fuzzy finder |
+
+### Completion
+
+<Steps>
+  <Step title="Trigger Completion">
+    Press `Ctrl+n` to trigger completion menu
+  </Step>
+  
+  <Step title="Navigate">
+    - `Ctrl+n` - Next item
+    - `Ctrl+p` - Previous item
+  </Step>
+  
+  <Step title="Accept">
+    Press `Enter` to accept completion
+  </Step>
+</Steps>
+
+## Usage Guide
+
+### File Navigation
+
+<Tabs>
+  <Tab title="NERDTree">
+    Press `F8` to toggle the file tree:
+    
+    **NERDTree Commands:**
+    - `o` - Open file or directory
+    - `t` - Open in new tab
+    - `i` - Open in horizontal split
+    - `s` - Open in vertical split
+    - `m` - Show file menu (create, delete, move)
+    - `?` - Show help
+  </Tab>
+  
+  <Tab title="Ranger">
+    Press `Space + f` to open Ranger:
+    
+    **Ranger Features:**
+    - Visual file preview
+    - Bulk operations
+    - Image preview
+    - File type filtering
+  </Tab>
+  
+  <Tab title="FZF">
+    Press `Ctrl + p` for fuzzy file finding:
+    
+    **FZF Features:**
+    - Type to filter files
+    - Fuzzy matching
+    - Instant results
+    - Preview support
+  </Tab>
+</Tabs>
+
+### Multiple Cursors
+
+<Steps>
+  <Step title="Select Word">
+    Position cursor on a word
+  </Step>
+  
+  <Step title="Add Cursors">
+    Press `Ctrl+n` repeatedly to select next occurrences
+  </Step>
+  
+  <Step title="Edit">
+    Type to edit all selections simultaneously
+  </Step>
+  
+  <Step title="Exit">
+    Press `Esc` to return to normal mode
+  </Step>
+</Steps>
+
+### Code Linting with ALE
+
+ALE automatically checks your code as you type:
+
+<Check>
+  Errors and warnings appear inline
+</Check>
+
+<Check>
+  Status bar shows error count
+</Check>
+
+**ALE Navigation:**
+- `]a` - Jump to next error
+- `[a` - Jump to previous error
+- `:ALEDetail` - Show detailed error message
+
+## Customization
+
+### Changing Color Scheme
+
+Edit the colorscheme line in `init.vim`:
+
+```vim
+colorscheme onedark
+```
+
+Available themes:
+- `onedark` - Atom's One Dark theme
+- `xcodedarkhc` - Xcode dark high contrast
+- `nord` - Arctic, north-bluish theme
+
+### Adding New Plugins
+
+<Steps>
+  <Step title="Edit init.vim">
+    Add plugin between `plug#begin()` and `plug#end()`:
+    ```vim
+    Plug 'author/plugin-name'
+    ```
+  </Step>
+  
+  <Step title="Install Plugin">
+    Open Neovim and run:
+    ```vim
+    :PlugInstall
+    ```
+    Or press `F12`
+  </Step>
+  
+  <Step title="Configure Plugin">
+    Add plugin settings after the plugin block
+  </Step>
+</Steps>
+
+### Modifying Keybindings
+
+Add custom keybindings after the existing ones:
+
+```vim
+" Custom keybinding
+nnoremap <leader>w :w<cr>        " Space+w to save
+nnoremap <leader>q :q<cr>        " Space+q to quit
+```
+
+## Color Schemes
+
+Three color schemes are installed:
+
+<CardGroup cols={3}>
+  <Card title="One Dark" icon="palette">
+    Atom's iconic dark theme
+    ```vim
+    colorscheme onedark
+    ```
+  </Card>
+  
+  <Card title="Xcode" icon="palette">
+    Apple's Xcode theme
+    ```vim
+    colorscheme xcodedarkhc
+    ```
+  </Card>
+  
+  <Card title="Nord" icon="palette">
+    Arctic-inspired palette
+    ```vim
+    colorscheme nord
+    ```
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Plugins not working">
+    1. Open Neovim
+    2. Run `:PlugInstall`
+    3. Restart Neovim
+    4. Check `:checkhealth` for issues
+  </Accordion>
+  
+  <Accordion title="NeoComplete not working">
+    NeoComplete requires Neovim with Python support:
+    ```bash
+    pip3 install neovim
+    ```
+    Then run `:checkhealth` to verify
+  </Accordion>
+  
+  <Accordion title="FZF not found">
+    Install FZF system-wide:
+    ```bash
+    # macOS
+    brew install fzf
+    
+    # Ubuntu/Debian
+    sudo apt install fzf
+    
+    # Or install via plugin
+    :call fzf#install()
+    ```
+  </Accordion>
+  
+  <Accordion title="Ranger not opening">
+    Install Ranger:
+    ```bash
+    pip install ranger-fm
+    ```
+    Verify installation:
+    ```bash
+    ranger --version
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Quick Reload Configuration
+
+After editing `init.vim`, reload without restarting:
+
+```vim
+" Press Space + s + v (already mapped)
+:source ~/.config/nvim/init.vim
+
+" Or use the shortcut
+<leader>sv
+```
+
+## Performance Tips
+
+<Tip>
+  For large projects, add these settings to improve performance:
+  ```vim
+  set lazyredraw          " Don't redraw during macros
+  set ttyfast             " Faster terminal connection
+  set updatetime=300      " Faster completion
+  ```
+</Tip>
+
+## Resources
+
+- [Neovim Documentation](https://neovim.io/doc/)
+- [vim-plug GitHub](https://github.com/junegunn/vim-plug)
+- [NERDTree Documentation](https://github.com/preservim/nerdtree)
+- [FZF Documentation](https://github.com/junegunn/fzf.vim)
+- [ALE Documentation](https://github.com/dense-analysis/ale)

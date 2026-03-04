@@ -1,0 +1,281 @@
+---
+title: Directory Structure
+description: Complete breakdown of the dotfiles repository structure and organization
+---
+
+This page documents the complete directory structure of the dotfiles repository and explains the purpose of each directory and its target location in the system.
+
+## Repository Root
+
+```
+~/dotfiles/
+├── .config/          # Application configurations
+├── bin/              # Custom command-line utilities
+├── home/             # Home directory dotfiles
+├── boot/             # Bootloader configuration
+├── etc/              # System configuration files
+├── srv/              # Service data files
+├── usr/              # System-wide binaries
+├── .github/          # GitHub repository metadata
+└── sync.sh           # Dotfiles synchronization script
+```
+
+---
+
+## Configuration Directories
+
+### .config/ → ~/.config/
+
+Application-specific configuration files following the XDG Base Directory specification.
+
+| Directory | Application | Purpose |
+|-----------|-------------|----------|
+| `alacritty/` | Alacritty | Terminal emulator configuration |
+| `BetterDiscord/` | BetterDiscord | Discord client customization |
+| `cava/` | Cava | Console audio visualizer |
+| `doom/` | Doom Emacs | Emacs configuration framework |
+| `dunst/` | Dunst | Notification daemon settings |
+| `flameshot/` | Flameshot | Screenshot tool configuration |
+| `i3/` | i3 | Window manager configuration |
+| `i3blocks/` | i3blocks | Status bar blocks |
+| `kitty/` | Kitty | Terminal emulator settings |
+| `lf/` | lf | Terminal file manager |
+| `mpv/` | mpv | Media player configuration |
+| `nvim/` | Neovim | Text editor configuration |
+| `neofetch/` | Neofetch | System information display |
+| `polybar/` | Polybar | Status bar configuration |
+| `ranger/` | Ranger | Terminal file manager |
+| `redshift/` | Redshift | Screen color temperature |
+| `rofi/` | Rofi | Application launcher |
+| `xdg-desktop-portal/` | XDG Portal | Desktop integration |
+| `xmobar/` | Xmobar | Status bar (alternative) |
+| `xmonad/` | XMonad | Window manager (alternative) |
+| `zathura/` | Zathura | Document viewer |
+
+### Special .config/ Files
+
+| File | Target Location | Purpose |
+|------|----------------|----------|
+| `firefox/user.js` | `~/.mozilla/firefox/vdhmokqy.default-nightly/user.js` | Firefox preferences |
+| `dolphin/dolphinrc` | `~/.config/dolphinrc` | KDE file manager |
+| `git/.gitconfig` | `~/.gitconfig` | Git global configuration |
+| `pavucontrol/pavucontrol.ini` | `~/.config/pavucontrol.ini` | PulseAudio control |
+| `picom/picom.conf` | `~/.config/picom.conf` | Compositor settings |
+| `most/.mostrc` | `~/.mostrc` | Pager configuration |
+| `tmux/.tmux.conf` | `~/.tmux.conf` | Terminal multiplexer |
+| `yakuake/yakuakerc` | `~/.config/yakuakerc` | Drop-down terminal |
+| `user-dirs.dirs` | `~/.config/user-dirs.dirs` | XDG user directories |
+| `plasma-localerc` | `~/.config/plasma-localerc` | KDE locale settings |
+
+---
+
+## bin/ → ~/.local/bin/
+
+Custom command-line utilities and scripts. See [Command Reference](/reference/command-list) for detailed documentation.
+
+**All files in this directory are executable scripts:**
+
+```
+bin/
+├── PATH                    # Display PATH variable
+├── ccl                     # Compile & run C
+├── cclp                    # Compile & run C++
+├── color                   # Terminal color test
+├── echo_separate           # Formatted headers
+├── git-remote              # Git remote helper
+├── gpt-import              # GPG key import
+├── hdln                    # Symbolic link helper
+├── i3-layout-save          # Save i3 layouts
+├── i3load                  # Load i3 layouts
+├── notify-test             # Test notifications
+├── pass                    # Password generator
+├── radio                   # Internet radio
+├── stot                    # Stow wrapper
+├── systemctl-enable        # Service management
+├── update                  # System updater
+├── wallpaper               # Video wallpapers
+└── wallpaper-convert       # Video conversion
+```
+
+---
+
+## home/ → ~/
+
+User home directory configuration files.
+
+| File | Target | Purpose |
+|------|--------|----------|
+| `.xinitrc` | `~/.xinitrc` | X Window System initialization |
+| `.xprofile` | `~/.xprofile` | X session startup script |
+| `.nvidia-settings-rc` | `~/.nvidia-settings-rc` | NVIDIA GPU settings |
+| `.screenlayout-main.sh` | `~/.screenlayout-main.sh` | Display configuration script |
+| `.Xresources` | `~/.Xresources` | X11 resource configuration |
+| `.zshenv` | `~/.zshenv` | Zsh environment variables |
+| `.zshrc` | `~/.zshrc` | Zsh interactive shell config |
+
+---
+
+## System Directories (Require Root)
+
+### etc/ → /etc/
+
+System-wide configuration files.
+
+<AccordionGroup>
+  <Accordion title="Core System Files">
+    | File | Purpose |
+    |------|----------|
+    | `dhcpcd.conf` | DHCP client configuration |
+    | `hosts` | Static hostname mappings |
+    | `locale.conf` | System locale settings |
+    | `locale.gen` | Available locales |
+    | `pacman.conf` | Pacman package manager |
+    | `resolv.conf` | DNS resolver configuration |
+    | `sysctl.conf` | Kernel parameters |
+    | `vconsole.conf` | Virtual console settings |
+  </Accordion>
+
+  <Accordion title="Service Configuration">
+    | Directory/File | Purpose |
+    |----------------|----------|
+    | `httpd/conf/httpd.conf` | Apache web server |
+    | `httpd/conf/extra/phpmyadmin.conf` | PHPMyAdmin configuration |
+    | `lightdm/lightdm.conf` | Display manager |
+    | `lightdm/lightdm-webkit2-greeter.conf` | Login screen theme |
+    | `php/php.ini` | PHP interpreter settings |
+    | `pulse/default.pa` | PulseAudio configuration |
+    | `systemd/logind.conf` | Login manager settings |
+  </Accordion>
+
+  <Accordion title="Package & Module Configuration">
+    | Directory/File | Purpose |
+    |----------------|----------|
+    | `modprobe.d/blacklist.conf` | Kernel module blacklist |
+    | `pacman.d/mirrorlist` | Arch Linux mirrors |
+    | `xdg/reflector/reflector.conf` | Mirror list updater |
+  </Accordion>
+</AccordionGroup>
+
+### X11/ → /etc/X11/xorg.conf.d/
+
+X Window System configuration (optional).
+
+| File | Purpose |
+|------|----------|
+| `00-keyboard.conf` | Keyboard layout and options |
+| `50-mouse-acceleration.conf` | Mouse sensitivity settings |
+| `xorg.conf` | Main X server configuration |
+
+### boot/ → /boot/
+
+Bootloader configuration.
+
+| File | Purpose |
+|------|----------|
+| `efi/EFI/refind/refind.conf` | rEFInd bootloader settings |
+
+### usr/ → /usr/
+
+System-wide resources.
+
+| File | Purpose |
+|------|----------|
+| `lib/NetworkManager/conf.d/20-connectivity.conf` | Network connectivity check |
+
+### srv/ → /srv/
+
+Service data.
+
+| File | Purpose |
+|------|----------|
+| `http/test.php` | Apache test script |
+
+---
+
+## Synchronization Structure
+
+The `sync.sh` script uses the `stot` command to create symbolic links following this pattern:
+
+### Link Operations (`-l` flag)
+
+```bash
+Source: ~/dotfiles/<path>
+Target: ~/<path>
+```
+
+**Example:**
+```bash
+stot -l .config/i3
+# Creates: ~/.config/i3/* → ~/dotfiles/.config/i3/*
+```
+
+### Copy Operations (`-c` flag)
+
+```bash
+Source: ~/dotfiles/<path>
+Target: /<path>
+```
+
+**Example:**
+```bash
+stot -c etc/hosts
+# Copies: ~/dotfiles/etc/hosts → /etc/hosts
+```
+
+---
+
+## Directory Purpose Summary
+
+<CardGroup cols={2}>
+  <Card title="User Configuration" icon="user">
+    - `.config/` - Application settings
+    - `home/` - Shell and X11 config
+    - `bin/` - Personal scripts
+  </Card>
+
+  <Card title="System Configuration" icon="server">
+    - `etc/` - System-wide settings
+    - `boot/` - Bootloader config
+    - `usr/` - System resources
+  </Card>
+
+  <Card title="Development" icon="code">
+    - Custom commands in `bin/`
+    - Git configuration
+    - Editor settings (nvim, doom)
+  </Card>
+
+  <Card title="Desktop Environment" icon="desktop">
+    - Window managers (i3, xmonad)
+    - Status bars (polybar, xmobar)
+    - Application launchers (rofi)
+  </Card>
+</CardGroup>
+
+---
+
+## Repository Metadata
+
+### .github/
+
+| File | Purpose |
+|------|----------|
+| `README.md` | Repository documentation |
+| `images/` | Screenshots and assets |
+
+---
+
+## XDG Base Directory Specification
+
+This dotfiles repository follows the XDG Base Directory standard:
+
+| Directory | Environment Variable | Purpose |
+|-----------|---------------------|----------|
+| `~/.config/` | `$XDG_CONFIG_HOME` | User-specific configuration |
+| `~/.local/bin/` | Part of `$PATH` | User-specific executables |
+| `~/.local/share/` | `$XDG_DATA_HOME` | User-specific data |
+| `~/.cache/` | `$XDG_CACHE_HOME` | User-specific cache |
+
+<Note>
+  Most modern applications automatically look in `~/.config/` for configuration files when they follow the XDG specification.
+</Note>

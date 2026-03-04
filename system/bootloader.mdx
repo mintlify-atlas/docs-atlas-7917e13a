@@ -1,0 +1,209 @@
+---
+title: Bootloader Setup (rEFInd)
+description: Configure rEFInd bootloader for Arch Linux with custom themes and multi-boot support
+---
+
+## Overview
+
+rEFInd is a UEFI boot manager that provides a graphical interface for selecting operating systems and boot options. This guide covers installation and configuration specific to Arch Linux.
+
+## Installation
+
+Install rEFInd from the official Arch repositories:
+
+```bash
+sudo pacman -S refind
+```
+
+Install rEFInd to your ESP (EFI System Partition):
+
+```bash
+refind-install
+```
+
+<Warning>
+This will modify your EFI boot configuration. Ensure you have a backup boot method available before proceeding.
+</Warning>
+
+## Configuration
+
+The main configuration file is located at `/boot/efi/EFI/refind/refind.conf`.
+
+### Key Settings
+
+**Timeout Configuration**
+
+Set the boot menu timeout (in seconds):
+
+```conf
+timeout 20
+```
+
+- `0` = disable automatic booting
+- `-1` = immediate boot unless a key is pressed
+
+**NVRAM Usage**
+
+Control whether rEFInd stores variables in NVRAM or on disk:
+
+```conf
+use_nvram false
+```
+
+Setting this to `false` reduces NVRAM wear and is recommended for systems with buggy EFI or worn NVRAM.
+
+### Scanning Configuration
+
+**Kernel Detection**
+
+rEFInd automatically scans for Linux kernels with EFI stub support:
+
+```conf
+# Scan for kernels without .efi extensions
+#scan_all_linux_kernels true
+
+# Combine multiple kernels in the same directory
+#fold_linux_kernels true
+```
+
+**Volume and File Exclusions**
+
+Exclude specific volumes or files from scanning:
+
+```conf
+#dont_scan_volumes "Recovery HD"
+#dont_scan_dirs ESP:/EFI/boot,EFI/Dell,EFI/memtest86
+#dont_scan_files shim.efi,MokManager.efi
+```
+
+### Manual Boot Entries
+
+For Arch Linux, you can create a manual boot entry:
+
+```conf
+menuentry "Arch Linux" {
+    icon     /EFI/refind/icons/os_arch.png
+    volume   "Arch Linux"
+    loader   /boot/vmlinuz-linux
+    initrd   /boot/initramfs-linux.img
+    options  "root=PARTUUID=YOUR-PARTUUID-HERE rw add_efi_memmap"
+    submenuentry "Boot using fallback initramfs" {
+        initrd /boot/initramfs-linux-fallback.img
+    }
+    submenuentry "Boot to terminal" {
+        add_options "systemd.unit=multi-user.target"
+    }
+}
+```
+
+<Warning>
+Replace `YOUR-PARTUUID-HERE` with your actual partition UUID. Find it using:
+```bash
+blkid /dev/sdXY
+```
+</Warning>
+
+### Tools Configuration
+
+Configure which tools appear in the boot menu:
+
+```conf
+#showtools shell, bootorder, gdisk, memtest, mok_tool, about, reboot, firmware
+```
+
+Available tools:
+- `shell` - EFI shell
+- `memtest` - Memory testing utility
+- `gdisk` - Partitioning tool
+- `mok_tool` - Machine Owner Key management
+- `firmware` - Reboot into firmware settings
+- `shutdown` / `reboot` - Power options
+
+## Custom Themes
+
+Install a custom rEFInd theme:
+
+```bash
+git clone https://gitlab.com/joaopedroaa/pers-rEFInd.git refind-theme
+sudo cp -r refind-theme /boot/efi/EFI/refind/
+```
+
+Include the theme in `refind.conf`:
+
+```conf
+include refind-theme/theme.conf
+```
+
+### Visual Customization
+
+**Banner and Icons**
+
+```conf
+#banner hostname.bmp
+#icons_dir myicons
+#icons_dir icons/snowy
+```
+
+**Screen Resolution**
+
+```conf
+#resolution 1024 768
+#resolution 1440 900
+#resolution max
+```
+
+**Icon Sizes**
+
+```conf
+#small_icon_size 96
+#big_icon_size 256
+```
+
+## Graphics Mode
+
+Control which operating systems boot in graphics mode vs text mode:
+
+```conf
+#use_graphics_for osx,linux
+```
+
+Valid options: `osx`, `linux`, `elilo`, `grub`, `windows`
+
+## Troubleshooting
+
+### rEFInd Not Appearing
+
+Check your UEFI boot order:
+
+```bash
+efibootmgr -v
+```
+
+Manually set rEFInd as the default:
+
+```bash
+sudo efibootmgr -o 0000,0001  # Adjust boot order numbers as needed
+```
+
+### Logging
+
+Enable logging for troubleshooting:
+
+```conf
+log_level 1
+```
+
+Logs are written to `refind.log` in the rEFInd directory on the ESP.
+
+<Warning>
+Leave `log_level` at 0 during normal operation. Higher values increase boot time and wear on the ESP.
+</Warning>
+
+## File Location
+
+Configuration file: `/boot/efi/EFI/refind/refind.conf`
+
+## Additional Resources
+
+- [rEFInd Official Documentation](http://www.rodsbooks.com/refind/)
+- [Arch Wiki: rEFInd](https://wiki.archlinux.org/title/REFInd)

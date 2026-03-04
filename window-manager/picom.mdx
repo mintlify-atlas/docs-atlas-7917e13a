@@ -1,0 +1,535 @@
+---
+title: "Picom Compositor Setup"
+description: "Configure Picom compositor for transparency, shadows, fading, and blur effects in i3 window manager"
+---
+
+# Picom Compositor Setup
+
+Picom is a lightweight compositor for X11 that provides window transparency, shadows, fading, and blur effects.
+
+## Overview
+
+**Configuration file:** `~/.config/picom/picom.conf`
+
+Picom enhances the visual experience of i3 window manager with modern visual effects while maintaining performance.
+
+## Basic Configuration
+
+### Backend Settings
+
+```conf
+backend = "glx";
+glx-no-stencil = true;
+glx-copy-from-front = false;
+vsync = true
+```
+
+<Note>
+The GLX backend provides the best performance and compatibility with modern graphics drivers.
+</Note>
+
+<Accordion title="Backend Options Explained">
+
+- **glx** - OpenGL backend (recommended)
+- **xrender** - X Render backend (fallback for older systems)
+- **xr_glx_hybrid** - Hybrid mode
+
+**GLX Options:**
+- `glx-no-stencil` - Disables stencil buffer for better performance
+- `glx-copy-from-front` - Disabled for better performance
+- `vsync` - Synchronizes rendering with monitor refresh rate
+
+</Accordion>
+
+## Shadow Configuration
+
+### Enable and Configure Shadows
+
+```conf
+shadow = true;
+shadow-radius = 7;
+shadow-opacity = 0.4
+shadow-offset-x = -7;
+shadow-offset-y = -4;
+```
+
+### Shadow Parameters
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| `shadow` | `true` | Enable client-side shadows |
+| `shadow-radius` | `7` | Blur radius in pixels |
+| `shadow-opacity` | `0.4` | Shadow opacity (0.0-1.0) |
+| `shadow-offset-x` | `-7` | Horizontal offset |
+| `shadow-offset-y` | `-4` | Vertical offset |
+
+### Shadow Exclusions
+
+```conf
+shadow-exclude = [
+  "name = 'Notification'",
+  "class_g = 'Conky'",
+  "class_g ?= 'Notify-osd'",
+  "class_g = 'Cairo-clock'",
+  "_GTK_FRAME_EXTENTS@:c"
+];
+```
+
+<Note>
+Excluding notifications and specific applications prevents unwanted shadow artifacts.
+</Note>
+
+## Fading Effects
+
+### Fade Configuration
+
+```conf
+fading = true
+fade-in-step = 0.03;
+fade-out-step = 0.03;
+fade-delta = 7
+no-fading-openclose = false
+```
+
+### Fading Parameters
+
+<Accordion title="Fade Settings Explained">
+
+- **fading**: Enable fade effects
+- **fade-in-step**: Opacity increase per step (0.01-1.0)
+- **fade-out-step**: Opacity decrease per step (0.01-1.0)
+- **fade-delta**: Time between steps in milliseconds
+- **no-fading-openclose**: Whether to disable fade on window open/close
+
+**Example calculations:**
+- `fade-in-step = 0.03` with `fade-delta = 7` means ~233ms to fully fade in
+- Lower values = smoother but longer animations
+- Higher values = faster but choppier transitions
+
+</Accordion>
+
+### Fade Exclusions
+
+```conf
+# Uncomment to exclude windows from fading
+# fade-exclude = []
+```
+
+## Transparency and Opacity
+
+### Opacity Settings
+
+```conf
+active-opacity = 1.0;
+inactive-opacity = 1.0;
+frame-opacity = 0.7;
+inactive-opacity-override = false;
+```
+
+<Warning>
+Setting `inactive-opacity < 1.0` makes all unfocused windows transparent, which can be distracting. Use per-application rules instead.
+</Warning>
+
+### Application-Specific Opacity
+
+```conf
+opacity-rule = [
+  "96:class_g = 'discord'",
+  "90:class_g = 'Thunar'",
+  "90:class_g = 'Spotify'",
+  "90:class_g = 'Element'",
+  "90:class_g = 'neothesia'",
+  "84:class_g = 'kitty'",
+  "84:class_g = 'Alacritty'",
+];
+```
+
+### Opacity Rule Syntax
+
+```conf
+"<opacity>:<condition>"
+```
+
+**Examples:**
+
+```conf
+# Set terminal to 85% opacity
+"85:class_g = 'Alacritty'"
+
+# Set Firefox to 95% opacity
+"95:class_g = 'firefox'"
+
+# Make floating windows slightly transparent
+"95:window_type = 'normal' && !focused"
+```
+
+### Finding Window Classes
+
+<Steps>
+
+1. **Install xprop:**
+
+```bash
+sudo pacman -S xorg-xprop  # Arch
+sudo apt install x11-utils  # Debian/Ubuntu
+```
+
+2. **Run xprop:**
+
+```bash
+xprop | grep WM_CLASS
+```
+
+3. **Click on the window** you want to identify
+
+4. **Use the second value** from `WM_CLASS(STRING)`
+
+</Steps>
+
+### Focus Exclusions
+
+```conf
+focus-exclude = [ "class_g = 'Cairo-clock'" ];
+```
+
+Windows matching these rules are always considered focused.
+
+## Background Blur
+
+### Blur Configuration
+
+```conf
+blur-method = "dual_kawase"
+blur-strength = 8
+blur-background = true
+blur-kern = "3x3box";
+```
+
+<Accordion title="Blur Methods">
+
+- **dual_kawase** - Fast and high-quality (recommended)
+- **kawase** - Similar to dual_kawase
+- **gaussian** - Traditional Gaussian blur
+- **box** - Simple box blur
+- **kernel** - Custom kernel blur
+- **none** - Disable blur
+
+**Blur Strength:**
+- Range: 1-20
+- Lower = subtle blur
+- Higher = intense blur (more GPU intensive)
+
+</Accordion>
+
+### Blur Exclusions
+
+```conf
+blur-background-exclude = [
+  "window_type = 'dock'",
+  "window_type = 'desktop'",
+  "_GTK_FRAME_EXTENTS@:c"
+];
+```
+
+<Note>
+Excluding docks and desktop prevents blurring where it's not needed, improving performance.
+</Note>
+
+## Window Type Rules
+
+### Window Type Configuration
+
+```conf
+wintypes:
+{
+  tooltip = { fade = true; shadow = true; opacity = 0.75; focus = true; full-shadow = false; };
+  dock = { shadow = false; }
+  dnd = { shadow = false; }
+  popup_menu = { opacity = 0.8; }
+  dropdown_menu = { opacity = 0.8; }
+};
+```
+
+### Available Window Types
+
+<Accordion title="Window Type Reference">
+
+| Type | Description |
+|------|-------------|
+| `tooltip` | Tooltip windows |
+| `dock` | Dock/panel windows (like Polybar) |
+| `dnd` | Drag-and-drop windows |
+| `popup_menu` | Popup menus |
+| `dropdown_menu` | Dropdown menus |
+| `menu` | Menu windows |
+| `utility` | Utility windows |
+| `toolbar` | Toolbar windows |
+| `splash` | Splash screens |
+| `dialog` | Dialog windows |
+| `normal` | Normal windows |
+| `notification` | Notification windows |
+| `combo` | Combo boxes |
+| `desktop` | Desktop windows |
+
+</Accordion>
+
+## General Settings
+
+### Detection and Optimization
+
+```conf
+mark-wmwin-focused = true;
+mark-ovredir-focused = true;
+detect-rounded-corners = true;
+detect-client-opacity = true;
+detect-transient = true
+detect-client-leader = true
+use-damage = true
+log-level = "warn";
+```
+
+<Accordion title="Settings Explained">
+
+- **mark-wmwin-focused**: Mark window-manager windows as focused
+- **mark-ovredir-focused**: Mark override-redirect windows as focused
+- **detect-rounded-corners**: Auto-detect rounded corners
+- **detect-client-opacity**: Detect client-side opacity
+- **detect-transient**: Detect transient windows
+- **detect-client-leader**: Group windows by leader
+- **use-damage**: Enable damage tracking (better performance)
+- **log-level**: Logging verbosity (debug, info, warn, error)
+
+</Accordion>
+
+<Warning>
+**Performance Note:**
+
+Setting `use-damage = false` can fix visual glitches but significantly impacts performance. Only disable if absolutely necessary.
+</Warning>
+
+## Starting Picom
+
+### Launch from i3
+
+Add to i3 config:
+
+```bash
+exec_always --no-startup-id picom --backend glx --xrender-sync-fence
+```
+
+### Command Line Options
+
+```bash
+# Basic startup
+picom
+
+# With specific backend
+picom --backend glx
+
+# With config file
+picom --config ~/.config/picom/picom.conf
+
+# Enable/disable features
+picom --no-fading
+picom --no-shadows
+picom --blur-method dual_kawase
+
+# Debug mode
+picom --log-level=debug
+```
+
+## Advanced Configuration
+
+### Corner Radius
+
+<Note>
+Picom doesn't have built-in corner rounding. Use picom-jonaburg-git fork for this feature.
+</Note>
+
+### Animation Settings
+
+For custom animations, consider using **picom-animations** fork:
+
+```bash
+yay -S picom-git  # picom-animations fork
+```
+
+### Performance Tuning
+
+<Accordion title="Performance Optimization">
+
+**For better performance:**
+
+```conf
+# Disable blur on low-end systems
+blur-background = false
+
+# Reduce shadow quality
+shadow-radius = 5;
+
+# Faster fade
+fade-in-step = 0.05;
+fade-out-step = 0.05;
+
+# Disable vsync if tearing isn't an issue
+vsync = false
+```
+
+**For better quality:**
+
+```conf
+# Enhanced shadows
+shadow-radius = 12;
+shadow-opacity = 0.6;
+
+# Stronger blur
+blur-strength = 12
+
+# Smoother fading
+fade-in-step = 0.02;
+fade-out-step = 0.02;
+fade-delta = 5
+```
+
+</Accordion>
+
+## Troubleshooting
+
+<Steps>
+
+### Check if Picom is Running
+
+```bash
+ps aux | grep picom
+```
+
+### Kill Existing Instance
+
+```bash
+killall picom
+```
+
+### Test Configuration
+
+```bash
+picom --config ~/.config/picom/picom.conf
+```
+
+### View Logs
+
+```bash
+picom --log-level=debug 2>&1 | tee picom.log
+```
+
+</Steps>
+
+### Common Issues
+
+<Accordion title="Screen Tearing">
+
+**Solution:**
+
+```conf
+vsync = true
+backend = "glx"
+```
+
+If still experiencing tearing, try:
+
+```bash
+picom --backend glx --vsync
+```
+
+</Accordion>
+
+<Accordion title="Performance Issues">
+
+**Solutions:**
+
+1. Disable blur:
+```conf
+blur-background = false
+```
+
+2. Reduce shadow quality:
+```conf
+shadow-radius = 5;
+```
+
+3. Use xrender backend:
+```bash
+picom --backend xrender
+```
+
+</Accordion>
+
+<Accordion title="Transparency Not Working">
+
+**Check:**
+
+1. Verify opacity rules:
+```bash
+picom --show-all-xerrors
+```
+
+2. Test with specific window:
+```bash
+xprop | grep WM_CLASS
+```
+
+3. Ensure no conflicts with other compositors:
+```bash
+killall compton xcompmgr
+```
+
+</Accordion>
+
+<Accordion title="Shadows Flickering">
+
+**Solutions:**
+
+1. Disable shadow on problematic windows:
+```conf
+shadow-exclude = [
+  "class_g = 'ProblematicApp'"
+];
+```
+
+2. Adjust shadow settings:
+```conf
+shadow-radius = 10;
+shadow-offset-x = -10;
+shadow-offset-y = -10;
+```
+
+</Accordion>
+
+## Integration with i3
+
+### Auto-start Configuration
+
+In `~/.config/i3/config`:
+
+```bash
+# Start picom with specific options
+exec_always --no-startup-id picom --backend glx --xrender-sync-fence
+
+# Alternative: use config file settings
+exec_always --no-startup-id picom -b
+```
+
+### Restart Picom
+
+Add to i3 config for quick restart:
+
+```bash
+bindsym $mod+Shift+p exec --no-startup-id "killall picom; picom -b"
+```
+
+## Additional Resources
+
+<Note>
+- [Picom GitHub](https://github.com/yshui/picom)
+- [Picom Wiki](https://github.com/yshui/picom/wiki)
+- Sample configs: `/usr/share/doc/picom/picom.conf.example`
+</Note>

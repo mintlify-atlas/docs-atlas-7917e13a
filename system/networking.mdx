@@ -1,0 +1,353 @@
+---
+title: Network Configuration
+description: Configure networking on Arch Linux using dhcpcd and systemd-resolved
+---
+
+## Overview
+
+This guide covers network configuration for Arch Linux using `dhcpcd` for DHCP client functionality and `systemd-resolved` for DNS resolution.
+
+## DHCP Configuration (dhcpcd)
+
+### Installation
+
+```bash
+sudo pacman -S dhcpcd
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl enable dhcpcd
+sudo systemctl start dhcpcd
+```
+
+### Configuration File
+
+The dhcpcd configuration is located at `/etc/dhcpcd.conf`.
+
+### Key Settings
+
+**Client Identification**
+
+Use DUID (DHCP Unique Identifier) for client identification:
+
+```conf
+duid
+```
+
+Alternatively, use the hardware address:
+
+```conf
+#clientid
+```
+
+<Warning>
+Some non-RFC compliant DHCP servers may not respond when using DUID. If you experience connection issues, comment out `duid` and enable `clientid` instead.
+</Warning>
+
+**Persistent Configuration**
+
+Maintain interface configuration when dhcpcd exits:
+
+```conf
+persistent
+```
+
+**Vendor Class ID**
+
+Set to blank to avoid sending system information:
+
+```conf
+vendorclassid
+```
+
+### DHCP Options
+
+**Requested Options**
+
+Specify which options to request from the DHCP server:
+
+```conf
+option domain_name_servers, domain_name, domain_search
+option classless_static_routes
+option interface_mtu
+option host_name
+```
+
+Key options:
+- `domain_name_servers` - DNS server addresses
+- `domain_name` - Domain name
+- `domain_search` - DNS search domains
+- `classless_static_routes` - Static routing information
+- `interface_mtu` - Network MTU settings
+- `host_name` - Request hostname from network
+
+**Optional Features**
+
+```conf
+option rapid_commit
+```
+
+Enables rapid commit support for faster DHCP negotiation (requires server support).
+
+**Server Identifier Requirement**
+
+```conf
+require dhcp_server_identifier
+```
+
+Required by RFC2131 to ensure DHCP responses are from legitimate servers.
+
+### IPv6 Configuration
+
+**SLAAC (Stateless Address Autoconfiguration)**
+
+Generate stable private IPv6 addresses:
+
+```conf
+slaac private
+```
+
+Alternatively, use hardware address:
+
+```conf
+#slaac hwaddr
+```
+
+**Disable IPv4 Link-Local**
+
+```conf
+noipv4ll
+```
+
+Prevents automatic assignment of 169.254.x.x addresses.
+
+### DNS Resolution Hook
+
+Disable dhcpcd's automatic resolv.conf management:
+
+```conf
+nohook resolv.conf
+```
+
+This allows `systemd-resolved` to manage DNS configuration instead.
+
+## DNS Configuration (systemd-resolved)
+
+### Installation and Setup
+
+`systemd-resolved` is typically pre-installed on Arch Linux.
+
+Enable and start the service:
+
+```bash
+sudo systemctl enable systemd-resolved
+sudo systemctl start systemd-resolved
+```
+
+### Symlink Configuration
+
+Link the stub resolver to `/etc/resolv.conf`:
+
+```bash
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+```
+
+<Warning>
+This will overwrite your existing `/etc/resolv.conf`. Back up any custom DNS configurations before proceeding.
+</Warning>
+
+### DNS Stub Listener
+
+The systemd-resolved stub listener provides DNS resolution at:
+
+```
+nameserver 127.0.0.53
+```
+
+This is configured in `/etc/resolv.conf` (symlinked to `/run/systemd/resolve/stub-resolv.conf`):
+
+```conf
+nameserver 127.0.0.53
+options edns0 trust-ad
+search .
+```
+
+Options:
+- `edns0` - Enable DNS Extension Mechanisms
+- `trust-ad` - Trust DNSSEC authenticated data
+
+### Check DNS Status
+
+View current DNS configuration and upstream servers:
+
+```bash
+resolvectl status
+```
+
+Query DNS for a specific domain:
+
+```bash
+resolvectl query example.com
+```
+
+View DNS statistics:
+
+```bash
+resolvectl statistics
+```
+
+### Manual DNS Configuration
+
+To set custom DNS servers for a specific interface:
+
+```bash
+sudo resolvectl dns <interface> 1.1.1.1 8.8.8.8
+```
+
+To set DNS search domains:
+
+```bash
+sudo resolvectl domain <interface> example.com
+```
+
+## Hosts File
+
+The `/etc/hosts` file provides static hostname-to-IP mappings.
+
+### Basic Configuration
+
+```conf
+127.0.0.1         localhost
+127.0.0.1         localhost.localdomain
+127.0.1.1         linux
+::1               localhost
+::1               ip6-localhost
+::1               ip6-loopback
+```
+
+### IPv6 Addresses
+
+```conf
+ff00::0           ip6-localnet
+ff00::0           ip6-mcastprefix
+ff02::1           ip6-allnodes
+ff02::2           ip6-allrouters
+ff02::3           ip6-allhosts
+fe80::1%lo0       localhost
+```
+
+### Broadcast Address
+
+```conf
+255.255.255.255   broadcasthost
+```
+
+### Ad Blocking with Hosts File
+
+The example configuration uses Steven Black's unified hosts file for blocking ads, fake news, gambling, porn, and social media:
+
+```bash
+curl -o /tmp/hosts https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+sudo cp /tmp/hosts /etc/hosts
+```
+
+Project: [StevenBlack/hosts](https://github.com/StevenBlack/hosts)
+
+<Warning>
+Modifying `/etc/hosts` with large blocklists can impact DNS lookup performance. Test thoroughly before deploying.
+</Warning>
+
+## Network Testing
+
+### Check Interface Status
+
+```bash
+ip addr show
+ip link show
+```
+
+### Test Connectivity
+
+```bash
+ping -c 4 8.8.8.8           # Test IPv4 connectivity
+ping -c 4 archlinux.org     # Test DNS resolution
+```
+
+### View DHCP Leases
+
+```bash
+cat /var/lib/dhcpcd/*.lease
+```
+
+### Monitor Network Traffic
+
+```bash
+sudo journalctl -u dhcpcd -f
+sudo journalctl -u systemd-resolved -f
+```
+
+## Troubleshooting
+
+### No Network Connection
+
+1. Check interface status:
+   ```bash
+   ip link show
+   ```
+
+2. Ensure dhcpcd is running:
+   ```bash
+   sudo systemctl status dhcpcd
+   ```
+
+3. Restart networking:
+   ```bash
+   sudo systemctl restart dhcpcd
+   ```
+
+### DNS Resolution Fails
+
+1. Check systemd-resolved status:
+   ```bash
+   resolvectl status
+   ```
+
+2. Verify `/etc/resolv.conf` symlink:
+   ```bash
+   ls -l /etc/resolv.conf
+   ```
+
+3. Restart systemd-resolved:
+   ```bash
+   sudo systemctl restart systemd-resolved
+   ```
+
+### Interface Not Getting IP Address
+
+Manually request a new lease:
+
+```bash
+sudo dhcpcd -n <interface>
+```
+
+Release and renew:
+
+```bash
+sudo dhcpcd -k <interface>  # Release
+sudo dhcpcd -n <interface>  # Renew
+```
+
+## File Locations
+
+- dhcpcd configuration: `/etc/dhcpcd.conf`
+- DNS configuration: `/etc/resolv.conf` → `/run/systemd/resolve/stub-resolv.conf`
+- Hosts file: `/etc/hosts`
+- DHCP leases: `/var/lib/dhcpcd/*.lease`
+
+## Additional Resources
+
+- [Arch Wiki: dhcpcd](https://wiki.archlinux.org/title/Dhcpcd)
+- [Arch Wiki: systemd-resolved](https://wiki.archlinux.org/title/Systemd-resolved)
+- [Arch Wiki: Network configuration](https://wiki.archlinux.org/title/Network_configuration)

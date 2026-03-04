@@ -1,80 +1,382 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: "Quick Start"
+description: "Get up and running with your new dotfiles configuration"
 ---
 
-## Get started in three steps
+## Getting Started
 
-Get your documentation site running locally and make your first customization.
+Once you've completed the installation, this guide will help you get familiar with the configured environment and custom tools.
 
-### Step 1: Set up your local environment
+## Essential Commands
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+### Custom Utilities
 
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
+Your dotfiles include several custom commands available in `~/.local/bin`:
 
 <CardGroup cols={2}>
+  <Card title="update" icon="arrows-rotate">
+    Updates all packages including yay, doom, and zinit plugins
+    
+    ```bash
+    update
+    ```
+  </Card>
+  
+  <Card title="status" icon="chart-line">
+    Displays a comprehensive system summary
+    
+    ```bash
+    status
+    status -h  # Show help
+    ```
+  </Card>
+  
+  <Card title="stot" icon="link">
+    Dotfile management wrapper around GNU Stow
+    
+    ```bash
+    stot -l .config/nvim     # Link config
+    stot -c etc/pacman.conf  # Copy system file
+    ```
+  </Card>
+  
+  <Card title="pass" icon="key">
+    Generates secure 42-character passwords
+    
+    ```bash
+    pass
+    ```
+  </Card>
+  
+  <Card title="color" icon="palette">
+    Tests terminal color capabilities
+    
+    ```bash
+    color
+    ```
+  </Card>
+  
+  <Card title="PATH" icon="route">
+    Displays $PATH in readable format
+    
+    ```bash
+    PATH
+    ```
+  </Card>
+  
+  <Card title="radio" icon="radio">
+    Stream internet radio using mpv
+    
+    ```bash
+    radio
+    ```
+  </Card>
+</CardGroup>
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+## i3 Window Manager
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+### Workspace Layouts
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+The i3 configuration includes predefined workspace layouts:
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+<Steps>
+  <Step title="Workspace 1: Browser">
+    Dedicated to Firefox for web browsing
+  </Step>
+  
+  <Step title="Workspace 2: Development">
+    ```
+    ┌──────────────┬──────────────┐
+    │              │    kitty     │
+    │  VS Code     ├──────────────┤
+    │              │    kitty     │
+    └──────────────┴──────────────┘
+    ```
+  </Step>
+  
+  <Step title="Workspace 8: Media">
+    ```
+    ┌──────────────┬──────────────┐
+    │   Spotify    │    kitty     │
+    └──────────────┴──────────────┘
+    ```
+  </Step>
+  
+  <Step title="Workspace 9: Documents">
+    ```
+    ┌──────────────┬──────────────┐
+    │   Zathura    │    kitty     │
+    └──────────────┴──────────────┘
+    ```
+  </Step>
+  
+  <Step title="Workspace 10: Research">
+    Firefox with Workona for tab management
+  </Step>
+</Steps>
 
+### Managing Layouts
+
+<CodeGroup>
+```bash Save Layout
+# Save current workspace N layout
+i3-save-tree --workspace N > ~/dotfiles/.config/i3/layouts/N.json
+```
+
+```bash Restore Layout
+# Restore workspace N layout
+i3-msg "workspace N; append_layout ~/dotfiles/.config/i3/layouts/N.json"
+```
+</CodeGroup>
+
+<Info>
+Layouts define window positions and sizes. After restoring a layout, open the applications in the same order they were saved.
+</Info>
+
+## Zsh Shell Features
+
+### Plugin Highlights
+
+<Steps>
+  <Step title="Autosuggestions">
+    Type a command and see suggestions from your history. Press `→` to accept.
+
+    ```bash
+    git sta  # → suggests: git status
+    ```
+  </Step>
+
+  <Step title="Syntax Highlighting">
+    Commands turn green when valid, red when invalid — before you press Enter.
+  </Step>
+
+  <Step title="History Search">
+    Start typing a command and use `↑`/`↓` to search matching commands from history.
+
+    ```bash
+    git<↑>  # Cycles through all git commands in history
+    ```
+  </Step>
+
+  <Step title="Fuzzy Finding (fzf)">
+    Press `Ctrl+R` for interactive command history search:
+
+    ```bash
+    # Type partial command, fuzzy search through history
+    ^R > docker
+    ```
+
+    Press `Ctrl+T` to fuzzy search files in current directory.
+  </Step>
+
+  <Step title="Forgit">
+    Interactive git commands with previews:
+
+    ```bash
+    ga   # Interactive git add with diffs
+    glo  # Interactive git log viewer
+    gd   # Interactive git diff
+    ```
+  </Step>
+</Steps>
+
+## Application Workflows
+
+### Terminal: Kitty
+
+<CodeGroup>
+```bash Tabs
+Ctrl+Shift+T      # New tab
+Ctrl+Shift+Q      # Close tab
+Ctrl+Shift+Right  # Next tab
+Ctrl+Shift+Left   # Previous tab
+```
+
+```bash Windows
+Ctrl+Shift+Enter  # New window
+Ctrl+Shift+W      # Close window
+Ctrl+Shift+[      # Previous window
+Ctrl+Shift+]      # Next window
+```
+
+```bash Zoom
+Ctrl+Shift+Equal  # Increase font size
+Ctrl+Shift+Minus  # Decrease font size
+Ctrl+Shift+Bksp   # Reset font size
+```
+</CodeGroup>
+
+### File Manager: Ranger
+
+<Info>
+Ranger is a terminal-based file manager with vim-like keybindings.
+</Info>
+
+```bash
+ranger  # Launch file manager
+
+# Navigation
+h  # Go to parent directory
+j  # Move down
+k  # Move up
+l  # Open file/directory
+
+# Operations
+yy  # Copy
+dd  # Cut
+pp  # Paste
+dD  # Delete
+
+# Search
+/   # Search forward
+?   # Search backward
+n   # Next result
+N   # Previous result
+```
+
+### Application Launcher: Rofi
+
+```bash
+# Configured in i3, typically bound to Mod+d
+rofi -show drun  # Application launcher
+rofi -show calc  # Calculator mode
+```
+
+### Screenshots: Flameshot
+
+```bash
+flameshot gui     # Launch screenshot tool
+flameshot full    # Capture full screen
+flameshot screen  # Capture current monitor
+```
+
+## Dotfile Management
+
+### Making Changes
+
+<Steps>
+  <Step title="Edit Configuration">
+    Edit files in the `~/dotfiles` repository:
+
+    ```bash
+    nvim ~/dotfiles/.config/i3/config
+    nvim ~/dotfiles/home/.zshrc
+    ```
+  </Step>
+
+  <Step title="Changes Take Effect Immediately">
+    Since files are symlinked, changes are immediately reflected:
+
+    ```bash
+    # Reload i3 configuration
+    i3-msg reload
+
+    # Reload zsh configuration
+    source ~/.zshrc
+    ```
+  </Step>
+
+  <Step title="Commit Your Changes">
+    Track your dotfile modifications with git:
+
+    ```bash
+    cd ~/dotfiles
+    git add .
+    git commit -m "Update i3 keybindings"
+    git push
+    ```
+  </Step>
+</Steps>
+
+### Adding New Configurations
+
+<Steps>
+  <Step title="Add File to Repository">
+    ```bash
+    # Copy new config to dotfiles
+    cp ~/.config/newapp/config ~/dotfiles/.config/newapp/
+    ```
+  </Step>
+
+  <Step title="Update sync.sh">
+    Add the stot command to `~/dotfiles/sync.sh`:
+
+    ```bash
+    echo 'stot -l .config/newapp' >> ~/dotfiles/sync.sh
+    ```
+  </Step>
+
+  <Step title="Run Sync">
+    ```bash
+    sh ~/dotfiles/sync.sh
+    ```
+  </Step>
+</Steps>
+
+## Tips and Tricks
+
+<AccordionGroup>
+  <Accordion title="Use stot instead of stow">
+    The `stot` wrapper provides cleaner output and simplified syntax compared to GNU Stow.
+
+    ```bash
+    # Instead of:
+    stow -d ~/dotfiles -t ~ .config/nvim
+
+    # Use:
+    stot -l .config/nvim
+    ```
+  </Accordion>
+
+  <Accordion title="Stream music from terminal">
+    The `radio` command uses mpv to stream internet radio stations.
+
+    ```bash
+    radio
+    ```
+
+    Customize stations by editing the radio script in `~/dotfiles/bin/radio`.
+  </Accordion>
+
+  <Accordion title="Quick password generation">
+    Generate secure passwords on the fly:
+
+    ```bash
+    pass
+    # Generates: xK9mP2nQ8vL5wR3jT7hF6dG4sA1cE0yU9iO8pM7nB6vC5x
+    ```
+  </Accordion>
+
+  <Accordion title="View PATH clearly">
+    Instead of `echo $PATH`, use the custom formatter:
+
+    ```bash
+    PATH
+    # Outputs each directory on a new line
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Customize i3" icon="window-restore">
+    Explore `~/dotfiles/.config/i3/config` to customize keybindings, colors, and behavior
+  </Card>
+  
+  <Card title="Extend Zsh" icon="terminal">
+    Add more plugins in `~/dotfiles/.config/zsh/plugins.zsh`
+  </Card>
+  
+  <Card title="Configure Polybar" icon="bars">
+    Modify your status bar in `~/dotfiles/.config/polybar/config`
+  </Card>
+  
+  <Card title="Theme Rofi" icon="palette">
+    Customize appearance in `~/dotfiles/.config/rofi/config.rasi`
+  </Card>
 </CardGroup>
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+Remember to commit and push your changes to keep your dotfiles backed up and synchronized across machines.
 </Note>

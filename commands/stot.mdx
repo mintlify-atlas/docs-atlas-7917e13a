@@ -1,0 +1,542 @@
+---
+title: 'stot - Dotfile Management Wrapper'
+description: 'Symlink and copy dotfiles from a central repository to their target locations'
+---
+
+## Overview
+
+`stot` is a dotfile management utility that simplifies symlinking and copying configuration files from a central dotfiles repository (`~/dotfiles/`) to their target locations in your home directory or system directories.
+
+<Info>
+  The name "stot" likely stands for "symlink to" or similar, reflecting its primary purpose of creating symbolic links for dotfile management.
+</Info>
+
+## Features
+
+- Symlink files and directories from `~/dotfiles/` to `~/`
+- Copy files to system directories (requires sudo)
+- Automatic directory creation
+- Safe file replacement
+- Visual feedback with status icons
+- Support for custom destination paths
+
+---
+
+## Installation
+
+<Steps>
+  <Step title="Create Dotfiles Directory">
+    Create your central dotfiles repository:
+    ```bash
+    mkdir -p ~/dotfiles
+    ```
+  </Step>
+  
+  <Step title="Place Script in PATH">
+    Ensure the `stot` script is executable and in your PATH:
+    ```bash
+    chmod +x ~/workspace/source/bin/stot
+    ```
+  </Step>
+  
+  <Step title="Organize Dotfiles">
+    Structure your dotfiles directory to mirror your home directory:
+    ```
+    ~/dotfiles/
+    ├── .vimrc
+    ├── .zshrc
+    ├── .config/
+    │   ├── i3/
+    │   └── nvim/
+    └── .local/
+        └── bin/
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Syntax
+
+```bash
+stot [OPTION]... SOURCE
+stot [OPTION]... SOURCE DEST
+```
+
+### Options
+
+<ParamField path="-l" type="flag" default="default">
+  Link mode (default): Creates symbolic links from `~/dotfiles/SOURCE` to `~/SOURCE`
+</ParamField>
+
+<ParamField path="-c" type="flag">
+  Copy mode: Copies files from `~/dotfiles/SOURCE` to `/SOURCE` using sudo
+</ParamField>
+
+<ParamField path="-h" type="flag">
+  Display help message and exit
+</ParamField>
+
+### Arguments
+
+<ParamField path="SOURCE" type="string" required>
+  Relative path to the file or directory within `~/dotfiles/`
+</ParamField>
+
+<ParamField path="DEST" type="string">
+  Optional custom destination path (relative to home directory for `-l`, absolute for `-c`)
+</ParamField>
+
+---
+
+## Usage Examples
+
+### Symlinking Files
+
+<CodeGroup>
+```bash Single File
+# Link .vimrc from ~/dotfiles/.vimrc to ~/.vimrc
+stot -l .vimrc
+```
+
+```bash Configuration Directory
+# Link entire directory
+stot -l .config/nvim
+```
+
+```bash Custom Destination
+# Link to custom location
+stot -l .config/i3/config .config/i3/config.backup
+```
+</CodeGroup>
+
+### Copying System Files
+
+<CodeGroup>
+```bash System Configuration
+# Copy file to /etc/ (requires sudo)
+stot -c etc/hosts etc/hosts
+```
+
+```bash Custom System Path
+# Copy to specific system directory
+stot -c usr/local/bin/script usr/local/bin/custom-script
+```
+</CodeGroup>
+
+---
+
+## How It Works
+
+### Link Mode (`-l`)
+
+<Steps>
+  <Step title="Path Resolution">
+    Resolves source path as `~/dotfiles/$SOURCE` and destination as `~/$DEST` (or `~/$SOURCE` if DEST not provided)
+  </Step>
+  
+  <Step title="Type Detection">
+    Determines if source is a file or directory
+  </Step>
+  
+  <Step title="Directory Handling">
+    For directories:
+    - Creates destination directory if it doesn't exist
+    - Symlinks all contents to destination
+    - Shows: `|:ok | ln  | 📁 | SOURCE`
+  </Step>
+  
+  <Step title="File Handling">
+    For files:
+    - Creates parent directory if needed
+    - Removes existing destination file
+    - Creates symbolic link
+    - Shows: `|:ok | ln  | 📄 | SOURCE`
+  </Step>
+</Steps>
+
+### Copy Mode (`-c`)
+
+<Steps>
+  <Step title="Path Resolution">
+    Resolves source path as `~/dotfiles/$SOURCE` and destination as `/$DEST` (absolute path)
+  </Step>
+  
+  <Step title="Validation">
+    Verifies source file exists and destination parent directory exists
+  </Step>
+  
+  <Step title="Copy Operation">
+    Uses `sudo cp` to copy file to system directory
+  </Step>
+  
+  <Step title="Feedback">
+    Shows: `|:ok | cp  | 📄 | DEST`
+  </Step>
+</Steps>
+
+---
+
+## Source Code
+
+<Accordion title="View Full Implementation">
+```bash
+#!/usr/bin/env bash
+
+   messageOk="|:ok |"
+messageError="|:error |"
+
+ message_ln=" ln  | 📄 |"
+message_lnd=" ln  | 📁 |"
+message_lna=" ln  | 📁 |"
+ message_cp=" cp  | 📄 |"
+
+
+if (($# == 0)); then
+  echo "Please pass argumensts"
+  echo "Usage: stot [OPTION]... SOURCE"
+  exit 1;
+fi
+
+
+while getopts ":hlc" opt; do
+  case $opt in
+    h)
+        echo "Usage: stot [OPTION]... SOURCE"
+        echo "   or: stot [OPTION]... SOURCE DEST"
+        echo ""
+        echo "   -l                          ln     "
+        echo "   -c                          cd     "
+        echo "   -h                          display this help and exit   "
+        exit 0;
+    ;;
+
+    l) METHOD="ln"
+    ;;
+
+    c) METHOD="cp"
+    ;;
+
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1;
+    ;;
+
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1;
+    ;;
+
+  esac
+done
+
+shift $(($OPTIND - 1))
+PASSED=$1
+
+
+
+
+if [[ $1 ]]; then
+  # ------------------------------------------
+  #                 LN
+  # ------------------------------------------
+  if [ $METHOD == "ln" ]; then
+    [ $1 ] && sourcePath=$HOME/dotfiles/$1
+    [ $1 ] && destPath=$HOME/$1
+    [ $2 ] && destPath=$HOME/$2
+
+
+    # IS FOLDER
+    # -------------
+    if [[ -d $sourcePath ]]; then
+
+      [ !  -d "$destPath" ] && mkdir $destPath &> /dev/null
+      if [ -d "$destPath" ]; then
+        ln -sv $sourcePath/* $destPath &> /dev/null
+        echo "$messageOk $message_lnd $1"
+      else
+        echo "$messageError $destPath not found"
+      fi
+
+
+    # IS FILE
+    # -------------
+    elif [[ -f $sourcePath ]]; then
+      destFolderPath=$(dirname "$destPath")
+
+      [ ! -d "$destFolderPath" ] && mkdir $destFolderPath &> /dev/null
+      [ -f "$destPath" ] && rm $destPath &> /dev/null
+
+      if [ -d "$destFolderPath" ]; then
+        ln -sv $sourcePath $destPath &> /dev/null
+        echo "$messageOk $message_ln $1 "
+      else
+        echo "$messageError  $homeFilePath"
+      fi
+
+
+    # IS NOT VALID
+    # -------------
+    else
+      echo "$sourcePath is not valid"
+      exit 1
+    fi
+
+
+
+  exit 1;
+
+  # ------------------------------------------
+  #                 CP
+  # ------------------------------------------
+  elif [ "$METHOD" == "cp" ]; then
+    [ $1 ] && sourcePath=$HOME/dotfiles/$1
+    [ $1 ] && destPath=/$1
+    [ $2 ] && destPath=/$2
+
+    # IS FILE
+    # -------------
+    if [[ -f $sourcePath ]]; then
+      destFolderPath=$(dirname "$destPath")
+
+      if [ -d $destFolderPath ]; then
+          sudo cp $sourcePath $destFolderPath &> /dev/null
+          echo "$messageOk $message_cp $destPath"
+      else
+          echo "$messageError $destPath"
+      fi
+
+    # IS NOT VALID
+    # -------------
+    else
+      echo "$sourcePath is not valid"
+      exit 1
+    fi
+
+  exit 1;
+  fi
+
+else
+    echo "Please pass valid source"
+    echo "Usage: stot [OPTION]... SOURCE"
+    exit 1
+fi
+```
+</Accordion>
+
+---
+
+## Common Workflows
+
+### Initial Dotfiles Setup
+
+<Tabs>
+  <Tab title="Basic Setup">
+    ```bash
+    # Link shell configuration
+    stot -l .bashrc
+    stot -l .zshrc
+    
+    # Link editor configs
+    stot -l .vimrc
+    stot -l .config/nvim
+    
+    # Link git configuration
+    stot -l .gitconfig
+    ```
+  </Tab>
+  
+  <Tab title="Full Desktop Setup">
+    ```bash
+    # Window manager
+    stot -l .config/i3
+    stot -l .config/polybar
+    
+    # Terminal
+    stot -l .config/alacritty
+    stot -l .config/kitty
+    
+    # Development tools
+    stot -l .config/nvim
+    stot -l .tmux.conf
+    
+    # Shell
+    stot -l .zshrc
+    stot -l .config/starship.toml
+    ```
+  </Tab>
+  
+  <Tab title="System Files">
+    ```bash
+    # System configuration (requires sudo)
+    stot -c etc/hosts
+    stot -c etc/pacman.conf
+    stot -c usr/local/bin/custom-script
+    ```
+  </Tab>
+</Tabs>
+
+### New Machine Setup
+
+<Steps>
+  <Step title="Clone Dotfiles">
+    ```bash
+    git clone https://github.com/user/dotfiles.git ~/dotfiles
+    ```
+  </Step>
+  
+  <Step title="Link All Configs">
+    ```bash
+    # Create a setup script
+    cd ~/dotfiles
+    for config in .vimrc .zshrc .gitconfig; do
+      stot -l $config
+    done
+    
+    for dir in .config/*; do
+      stot -l $dir
+    done
+    ```
+  </Step>
+  
+  <Step title="Verify Links">
+    ```bash
+    # Check symlinks
+    ls -la ~ | grep '^l'
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Output Messages
+
+### Success Messages
+
+| Icon | Operation | Message |
+|------|-----------|--------|
+| ✅ | Link file | `|:ok | ln  | 📄 | filename` |
+| ✅ | Link directory | `|:ok | ln  | 📁 | dirname` |
+| ✅ | Copy file | `|:ok | cp  | 📄 | /path/to/file` |
+
+### Error Messages
+
+| Message | Cause | Solution |
+|---------|-------|----------|
+| `Please pass argumensts` | No arguments provided | Provide SOURCE argument |
+| `Invalid option: -X` | Unknown option | Use `-l`, `-c`, or `-h` |
+| `sourcePath is not valid` | Source doesn't exist | Check file exists in ~/dotfiles/ |
+| `destPath not found` | Parent directory missing | Check destination path |
+
+---
+
+## Tips & Best Practices
+
+<Tip>
+  **Version Control**: Keep your ~/dotfiles/ directory under version control with git to track changes and sync across machines.
+</Tip>
+
+<Warning>
+  **Destructive Operations**: The `-l` mode removes existing destination files before creating symlinks. Back up important configurations first.
+</Warning>
+
+<Info>
+  **Directory Linking**: When linking directories, `stot` symlinks the contents, not the directory itself, allowing for partial configuration management.
+</Info>
+
+### Recommended Directory Structure
+
+```
+~/dotfiles/
+├── .bashrc
+├── .zshrc
+├── .gitconfig
+├── .vimrc
+├── .config/
+│   ├── nvim/
+│   │   ├── init.vim
+│   │   └── plugins.vim
+│   ├── i3/
+│   │   └── config
+│   └── alacritty/
+│       └── alacritty.yml
+├── .local/
+│   └── bin/
+│       └── custom-scripts
+└── etc/
+    └── hosts
+```
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Symlink not created">
+    Check that:
+    1. Source file exists in ~/dotfiles/
+    2. Parent directory of destination exists
+    3. You have write permissions to destination
+    
+    ```bash
+    # Verify source exists
+    ls -la ~/dotfiles/your-file
+    
+    # Check permissions
+    ls -la $(dirname ~/destination)
+    ```
+  </Accordion>
+  
+  <Accordion title="Permission denied when copying system files">
+    Copy mode (`-c`) requires sudo privileges:
+    
+    ```bash
+    # Ensure sudo is configured
+    sudo -v
+    
+    # Run stot with -c
+    stot -c etc/hosts
+    ```
+  </Accordion>
+  
+  <Accordion title="Directory linking not working as expected">
+    Remember that `stot -l` links directory *contents*, not the directory itself:
+    
+    ```bash
+    # This links files inside .config/nvim/ to ~/.config/nvim/
+    stot -l .config/nvim
+    
+    # Not the .config/nvim directory itself
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Related Commands
+
+<CardGroup cols={2}>
+  <Card title="ln" icon="link">
+    Standard Unix symbolic link command
+  </Card>
+  
+  <Card title="cp" icon="copy">
+    Standard Unix copy command
+  </Card>
+  
+  <Card title="GNU Stow" icon="box">
+    Alternative dotfile management tool
+  </Card>
+  
+  <Card title="chezmoi" icon="home">
+    Modern dotfile manager with templates
+  </Card>
+</CardGroup>
+
+---
+
+## See Also
+
+- [Command Overview](/commands/overview) - All available utilities
+- [Update Command](/commands/update) - System update utility
+- [Radio Command](/commands/radio) - Internet radio streaming

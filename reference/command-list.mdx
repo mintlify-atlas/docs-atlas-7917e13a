@@ -1,0 +1,274 @@
+---
+title: Command Reference
+description: Complete list of all custom commands included in the dotfiles
+---
+
+All custom commands are located in `~/dotfiles/bin/` and symlinked to `~/.local/bin/` for system-wide access.
+
+## Core Commands
+
+| Command | Description | Usage |
+|---------|-------------|-------|
+| `update` | System-wide update utility for packages and tools | `update` or `update --all` |
+| `stot` | Stow wrapper for easier dotfile management | `stot [OPTIONS] SOURCE [DEST]` |
+| `PATH` | Display `$PATH` environment variable in readable format | `PATH` |
+| `color` | Terminal color test utility showing all ANSI color combinations | `color` |
+| `pass` | Generate a secure 42-character random password | `pass` |
+| `radio` | Interactive internet radio player using mpv | `radio` |
+
+## Development Commands
+
+| Command | Description | Usage |
+|---------|-------------|-------|
+| `ccl` | Compile and run C programs | `ccl filename.c` |
+| `cclp` | Compile and run C++ programs with standard library | `cclp filename.cpp` |
+| `git-remote` | Add remote origin and push to main branch | `git-remote <url>` |
+| `gpt-import` | Import GPG keys from keyserver | `gpt-import <key-id>` |
+
+## i3 Window Manager Commands
+
+| Command | Description | Usage |
+|---------|-------------|-------|
+| `i3-layout-save` | Save current i3 workspace layout to JSON | `i3-layout-save <workspace> [filename]` |
+| `i3load` | Load saved i3 workspace layout | `i3load <workspace> [filename]` |
+
+## System Utilities
+
+| Command | Description | Usage |
+|---------|-------------|-------|
+| `systemctl-enable` | Enable and restart systemd service with status display | `systemctl-enable <service-name>` |
+| `wallpaper` | Set animated video wallpapers on dual monitors | `wallpaper <video-file>` |
+| `wallpaper-convert` | Convert MP4 videos to WebM format for wallpapers | `wallpaper-convert <filename>` |
+| `notify-test` | Test notification system with multiple notifications | `notify-test` |
+
+## Helper Commands
+
+| Command | Description | Usage |
+|---------|-------------|-------|
+| `echo_separate` | Print a formatted section header with separator line | `echo_separate "Section Title"` |
+| `hdln` | Create symbolic link for directory | `hdln <source> <destination>` |
+
+---
+
+## Detailed Command Documentation
+
+<AccordionGroup>
+  <Accordion title="update - System Update Utility">
+    Updates multiple package managers and tools in sequence.
+
+    ```bash
+    #!/usr/bin/env zsh
+    update          # Standard update
+    update --all    # Includes VS Code Insiders build
+    ```
+
+    **Updates:**
+    - `yay` (AUR helper)
+    - `tldr` (man page alternative)
+    - `zinit` (Zsh plugin manager)
+    - Optional: VS Code Insiders (with `--all` flag)
+
+    **Source:** `bin/update`
+  </Accordion>
+
+  <Accordion title="stot - Dotfile Symlink Manager">
+    A wrapper around GNU Stow for managing dotfile symlinks with enhanced features.
+
+    ```bash
+    stot -l SOURCE [DEST]    # Create symbolic links
+    stot -c SOURCE [DEST]    # Copy files (requires sudo for system paths)
+    stot -h                  # Display help
+    ```
+
+    **Options:**
+    - `-l`: Create symbolic links from `~/dotfiles/` to home directory
+    - `-c`: Copy files to system directories (e.g., `/etc/`)
+    - `-h`: Display help message
+
+    **Examples:**
+    ```bash
+    stot -l .config/i3              # Link i3 config to ~/.config/i3
+    stot -l home/.zshrc             # Link .zshrc to ~/
+    stot -c etc/hosts               # Copy hosts file to /etc/hosts
+    ```
+
+    **Source:** `bin/stot`
+  </Accordion>
+
+  <Accordion title="PATH - Display PATH Variable">
+    Displays the `$PATH` environment variable with each directory on a new line for better readability.
+
+    ```bash
+    PATH
+    ```
+
+    **Output Example:**
+    ```
+    /usr/local/bin
+    /usr/bin
+    /bin
+    ~/.local/bin
+    ```
+
+    **Implementation:**
+    ```bash
+    echo -e ${PATH//:/\\n}
+    ```
+
+    **Source:** `bin/PATH`
+  </Accordion>
+
+  <Accordion title="color - Terminal Color Test">
+    Displays a comprehensive matrix of all ANSI color combinations for terminal testing.
+
+    ```bash
+    color
+    ```
+
+    Shows foreground and background color combinations with:
+    - Normal and bold text
+    - 8 background colors (40m-47m)
+    - 16 foreground variations
+
+    **Source:** `bin/color`
+  </Accordion>
+
+  <Accordion title="pass - Password Generator">
+    Generates a cryptographically secure 42-character random password and copies it to clipboard.
+
+    ```bash
+    pass
+    ```
+
+    **Character Set:** `0-9a-zA-Z`
+
+    **Output:** Password is copied to clipboard using `xsel` and displayed in terminal.
+
+    **Implementation:**
+    ```bash
+    </dev/urandom tr -dc '0-9a-zA-Z' | head -c42
+    ```
+
+    **Source:** `bin/pass`
+  </Accordion>
+
+  <Accordion title="radio - Internet Radio Player">
+    Interactive menu-driven internet radio player using mpv.
+
+    ```bash
+    radio
+    ```
+
+    **Features:**
+    - Arrow key navigation
+    - Pre-configured radio stations
+    - Direct streaming via mpv
+    - No caching for live playback
+
+    **Included Stations (Rio de Janeiro):**
+    - 95.7 - SulAmérica Paradiso
+    - 99.9 - JB FM
+    - 102.1 - Mix FM
+    - 102.9 - Jovem Pan
+
+    **Source:** `bin/radio`
+  </Accordion>
+
+  <Accordion title="ccl / cclp - C/C++ Compile & Run">
+    Quick compile and execute commands for C and C++ programs.
+
+    ```bash
+    ccl program.c      # Compile and run C program
+    cclp program.cpp   # Compile and run C++ program
+    ```
+
+    **ccl (C):**
+    ```bash
+    gcc filename.c -o filename && ./filename
+    ```
+
+    **cclp (C++):**
+    ```bash
+    gcc filename.cpp -o filename -lstdc++ && ./filename
+    ```
+
+    **Source:** `bin/ccl`, `bin/cclp`
+  </Accordion>
+
+  <Accordion title="i3-layout-save / i3load - Workspace Layouts">
+    Save and restore i3 workspace layouts for consistent window arrangements.
+
+    ```bash
+    i3-layout-save <workspace-number> [layout-name]
+    i3load <workspace-number> [layout-name]
+    ```
+
+    **Examples:**
+    ```bash
+    i3-layout-save 1 dev        # Save workspace 1 as 'dev'
+    i3load 1 dev                # Load 'dev' layout to workspace 1
+    i3-layout-save 2            # Save workspace 2 with number as name
+    ```
+
+    **Save Location:** `~/dotfiles/.config/i3layouts/`
+
+    **Source:** `bin/i3-layout-save`, `bin/i3load`
+  </Accordion>
+
+  <Accordion title="wallpaper - Animated Wallpaper">
+    Set looping video wallpapers on dual monitors using xwinwrap and mpv.
+
+    ```bash
+    wallpaper /path/to/video.mp4
+    ```
+
+    **Features:**
+    - Dual monitor support (1920x1080 each)
+    - Automatic loop
+    - No audio playback
+    - Kills existing wallpaper instances
+
+    **Monitor Configuration:**
+    - Monitor 1: 1920x1080+0+0
+    - Monitor 2: 1920x1080+1920+0
+
+    **Companion Command:** Use `wallpaper-convert` to optimize videos for wallpaper use.
+
+    **Source:** `bin/wallpaper`
+  </Accordion>
+
+  <Accordion title="systemctl-enable - Service Management">
+    Quickly enable, restart, and check status of systemd services.
+
+    ```bash
+    systemctl-enable <service-name>
+    ```
+
+    **Actions Performed:**
+    1. Clears terminal
+    2. Displays formatted header
+    3. Enables service
+    4. Restarts service
+    5. Waits 3 seconds
+    6. Shows service status
+
+    **Example:**
+    ```bash
+    systemctl-enable nginx
+    ```
+
+    **Source:** `bin/systemctl-enable`
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Installation
+
+All commands are automatically symlinked during the dotfiles sync process:
+
+```bash
+stot -l bin .local/bin
+```
+
+This creates symbolic links from `~/dotfiles/bin/*` to `~/.local/bin/`.

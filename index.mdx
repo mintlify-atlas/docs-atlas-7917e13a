@@ -1,97 +1,272 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: dotfiles
+description: Personal dotfiles for a streamlined, Unix-inspired, Arch-based development environment
+mode: custom
 ---
 
-## Setting up
+<div className="relative overflow-hidden bg-gradient-to-br from-[#1c141f] via-[#2a1f2e] to-[#1c141f] dark:from-[#1c141f] dark:via-[#2a1f2e] dark:to-[#1c141f] py-20 px-4">
+  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(226,92,35,0.15),transparent_50%)]"></div>
+  <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(140,92,52,0.1),transparent_50%)]"></div>
+  
+  <div className="relative max-w-6xl mx-auto">
+    <div className="grid lg:grid-cols-12 gap-12 items-center">
+      <div className="lg:col-span-7">
+        <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6">
+          Unix-inspired dotfiles for power users
+        </h1>
+        <p className="text-xl text-gray-300 mb-8 max-w-2xl">
+          A complete Arch Linux development environment with i3 tiling window manager, polybar, doom emacs, neovim, and zsh — optimized for terminal-based workflows and developer productivity.
+        </p>
+        <div className="flex flex-wrap gap-4">
+          <a 
+            href="/quickstart" 
+            className="inline-flex items-center px-6 py-3 rounded-lg bg-[#e25c23] hover:bg-[#c94d1c] text-white font-semibold transition-colors no-underline"
+          >
+            Get Started
+            <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+          <a 
+            href="/installation" 
+            className="inline-flex items-center px-6 py-3 rounded-lg border border-white/30 bg-white/10 hover:bg-white/20 text-white font-semibold transition-colors no-underline"
+          >
+            Installation Guide
+          </a>
+        </div>
+      </div>
+      
+      <div className="lg:col-span-5 hidden lg:block">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#e25c23]/20 to-[#8c5c34]/20 rounded-2xl blur-3xl"></div>
+          <div className="relative bg-[#0f1117] rounded-2xl border border-[#27272a] p-6 shadow-2xl">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <pre className="text-sm text-gray-300 overflow-x-auto">
+              <code>{`# Clone dotfiles repository
+git clone git@github.com:joaopedroaats/dotfiles.git ~/dotfiles
 
-Get your documentation site up and running in minutes.
+# Sync configurations
+sh ~/dotfiles/sync.sh
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+# Start using custom commands
+update    # Update all packages
+radio     # Stream internet radio
+pass      # Generate secure password`}</code>
+            </pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-## Make it yours
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+    Quick start
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Get your development environment configured in minutes
+  </p>
 
-Design a docs site that looks great and empowers your users.
+  <Steps>
+    <Step title="Clone the repository">
+      Clone the dotfiles repository to your home directory.
+      
+      ```bash
+      git clone git@github.com:joaopedroaats/dotfiles.git ~/dotfiles
+      ```
+      
+      <Warning>
+        This operation will overwrite existing configuration files. Make sure to back up important data before proceeding.
+      </Warning>
+    </Step>
 
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
-  </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
+    <Step title="Sync your configurations">
+      Run the sync script to create symlinks for all configuration files.
+      
+      ```bash
+      sh ~/dotfiles/sync.sh
+      ```
+      
+      The script uses the custom `stot` wrapper around GNU stow to manage dotfile symlinks across your system.
+    </Step>
+
+    <Step title="Start using custom commands">
+      All custom commands are now available in your PATH via `~/.local/bin`.
+      
+      ```bash
+      # Update system packages
+      update
+      
+      # Stream radio from terminal
+      radio
+      
+      # Generate a secure password
+      pass
+      ```
+      
+      Explore the full list of available commands in the [Custom Commands](/commands/overview) section.
+    </Step>
+  </Steps>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+    Explore the configuration
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Deep dive into each component of the development environment
+  </p>
+
+  <CardGroup cols={3}>
     <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
+      title="Window Manager"
+      icon="window-restore"
+      href="/window-manager/i3-configuration"
+    >
+      i3 tiling window manager with custom keybindings, polybar status bar, and rofi launcher
+    </Card>
+    <Card
+      title="Terminal Setup"
+      icon="terminal"
+      href="/terminal/kitty"
+    >
+      Kitty terminal emulator with zsh, powerlevel10k, and extensive plugin configuration
+    </Card>
+    <Card
+      title="Editors"
+      icon="code"
+      href="/editors/doom-emacs"
+    >
+      Doom Emacs and Neovim setups optimized for coding and writing
+    </Card>
+    <Card
+      title="Custom Commands"
+      icon="wrench"
+      href="/commands/overview"
+    >
+      Custom CLI utilities for dotfile management, system updates, and productivity
+    </Card>
+    <Card
+      title="System Config"
+      icon="gear"
+      href="/system/bootloader"
+    >
+      Bootloader, networking, and audio configuration for Arch Linux
+    </Card>
+    <Card
+      title="Reference"
+      icon="book"
+      href="/reference/command-list"
+    >
+      Complete reference for all commands, keybindings, and directory structure
+    </Card>
+  </CardGroup>
+</div>
 
-## Create beautiful pages
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+    Key features
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Everything you need for a powerful development environment
+  </p>
 
-Everything you need to create world-class documentation.
+  <div className="grid md:grid-cols-2 gap-6">
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27] hover:border-[#e25c23] dark:hover:border-[#e25c23] transition-colors">
+      <div className="flex items-start gap-4">
+        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#e25c23]/10 flex items-center justify-center">
+          <svg className="w-6 h-6 text-[#e25c23]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+          </svg>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            i3 Tiling Window Manager
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Keyboard-driven workflow with custom keybindings, workspace layouts, and efficient window management
+          </p>
+        </div>
+      </div>
+    </div>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27] hover:border-[#e25c23] dark:hover:border-[#e25c23] transition-colors">
+      <div className="flex items-start gap-4">
+        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#e25c23]/10 flex items-center justify-center">
+          <svg className="w-6 h-6 text-[#e25c23]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Powerful Shell Configuration
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Zsh with powerlevel10k theme, auto-suggestions, syntax highlighting, and extensive plugin ecosystem
+          </p>
+        </div>
+      </div>
+    </div>
 
-## Need inspiration?
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27] hover:border-[#e25c23] dark:hover:border-[#e25c23] transition-colors">
+      <div className="flex items-start gap-4">
+        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#e25c23]/10 flex items-center justify-center">
+          <svg className="w-6 h-6 text-[#e25c23]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Doom Emacs & Neovim
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Two powerful editors configured for coding and writing, with LSP support and productivity enhancements
+          </p>
+        </div>
+      </div>
+    </div>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27] hover:border-[#e25c23] dark:hover:border-[#e25c23] transition-colors">
+      <div className="flex items-start gap-4">
+        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#e25c23]/10 flex items-center justify-center">
+          <svg className="w-6 h-6 text-[#e25c23]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Custom Command Suite
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Purpose-built utilities for dotfile management, system updates, radio streaming, and password generation
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="mt-20 mb-16 max-w-5xl mx-auto px-6">
+  <div className="rounded-2xl bg-gradient-to-r from-[#e25c23] to-[#8c5c34] p-12 text-center">
+    <h2 className="text-3xl font-bold text-white mb-4">
+      Ready to configure your environment?
+    </h2>
+    <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+      Get started with the installation guide and have your development environment set up in minutes.
+    </p>
+    <a 
+      href="/installation" 
+      className="inline-flex items-center px-8 py-4 rounded-lg bg-white text-[#e25c23] font-bold hover:bg-gray-100 transition-colors no-underline"
+    >
+      Install Now
+      <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+      </svg>
+    </a>
+  </div>
+</div>

@@ -1,0 +1,266 @@
+---
+title: "Installation"
+description: "Complete guide to installing and configuring the dotfiles on your system"
+---
+
+<Warning>
+This installation process will overwrite existing configuration files. Make sure to back up your current dotfiles before proceeding.
+</Warning>
+
+## Prerequisites
+
+Before installing, ensure you have the following:
+
+- Arch Linux (or Arch-based distribution)
+- Git configured with SSH access
+- Basic familiarity with terminal commands
+- Backup of existing configuration files
+
+## Installation Process
+
+<Steps>
+  <Step title="Clone the Repository">
+    Clone the dotfiles repository to your home directory:
+
+    ```bash
+    git clone git@github.com:joaopedroaats/dotfiles.git ~/dotfiles
+    ```
+
+    <Info>
+    The repository should be cloned to `~/dotfiles` as the sync scripts expect this location.
+    </Info>
+  </Step>
+
+  <Step title="First-Time Setup">
+    For a fresh installation, run the first-sync script to set up the `stot` utility:
+
+    ```bash
+    sh ~/dotfiles/first-sync.sh
+    ```
+
+    This script will:
+    - Create `~/.local/bin/` directory
+    - Symlink the `stot` utility to `~/.local/bin/stot`
+    - Clone the packages repository for system dependencies
+
+    ```bash first-sync.sh
+    # Config Stot
+    mkdir ~/.local/bin/
+    [ ! -f ~/.local/bin/stot ] && ln -sv ~/dotfiles/bin/stot ~/.local/bin
+
+    # Download Packages
+    git clone git@github.com:joaopedroaats/packages.git ~/packages
+    ```
+  </Step>
+
+  <Step title="Sync Configuration Files">
+    Run the main sync script to create symlinks for all configuration files:
+
+    ```bash
+    sh ~/dotfiles/sync.sh
+    ```
+
+    <Note>
+    This performs a hard sync of your local config files with `~/dotfiles`. Existing files will be overwritten.
+    </Note>
+
+    The sync script will link:
+    - Home directory configs (`.zshrc`, `.zshenv`, `.Xresources`, etc.)
+    - All `.config/` application configurations
+    - Custom binaries from `bin/` to `~/.local/bin/`
+    - System files to `/boot`, `/etc`, `/usr`, and `/srv` (requires sudo)
+  </Step>
+
+  <Step title="Install System Packages">
+    Install the required packages using the cloned packages repository:
+
+    ```bash
+    cd ~/packages
+    # Follow the instructions in the packages repository
+    ```
+
+    Key packages include:
+    - **i3-gaps** — Tiling window manager
+    - **picom** — Compositor
+    - **polybar** — Status bar
+    - **rofi** — Application launcher
+    - **dunst** — Notification daemon
+    - **kitty** — Terminal emulator
+    - **zsh** — Shell
+    - And many more...
+  </Step>
+
+  <Step title="Install Optional Components">
+    ### Wallpapers
+
+    Clone the wallpapers repository:
+
+    ```bash
+    git clone git@gitlab.com:joaopedroaa/wallpapers.git ~/Pictures/Wallpapers/
+    ```
+
+    ### rEFInd Boot Theme
+
+    Install the custom rEFInd theme:
+
+    ```bash
+    git clone git@gitlab.com:joaopedroaa/pers-rEFInd.git refind-theme
+    sudo cp -r refind-theme /boot/efi/EFI/refind/
+    ```
+  </Step>
+</Steps>
+
+## Understanding the Stot Utility
+
+The `stot` command is a custom wrapper around GNU Stow that simplifies dotfile management:
+
+<CodeGroup>
+```bash Usage
+stot [OPTION]... SOURCE
+stot [OPTION]... SOURCE DEST
+```
+
+```bash Options
+-l    Create symlinks (ln)
+-c    Copy files (cp)
+-h    Display help
+```
+
+```bash Examples
+# Link a directory
+stot -l .config/i3
+
+# Link a file to a custom destination
+stot -l .config/git/.gitconfig .gitconfig
+
+# Copy system file (requires sudo)
+stot -c etc/pacman.conf
+```
+</CodeGroup>
+
+### How Stot Works
+
+<Steps>
+  <Step title="For Home Directory Files (-l flag)">
+    ```bash
+    stot -l home/.zshrc /
+    ```
+    
+    Creates: `~/home/.zshrc` → `~/dotfiles/home/.zshrc`
+  </Step>
+
+  <Step title="For Config Directories (-l flag)">
+    ```bash
+    stot -l .config/i3
+    ```
+    
+    Creates: `~/.config/i3/*` → `~/dotfiles/.config/i3/*`
+  </Step>
+
+  <Step title="For System Files (-c flag)">
+    ```bash
+    stot -c etc/pacman.conf
+    ```
+    
+    Copies: `~/dotfiles/etc/pacman.conf` → `/etc/pacman.conf`
+  </Step>
+</Steps>
+
+## Synced Configurations
+
+### Home Directory Files
+
+```bash
+stot -l home/.nvidia-settings-rc                /
+stot -l home/.screenlayout-main.sh              /
+stot -l home/.Xresources                        /
+stot -l home/.zshenv                            /
+stot -l home/.zshrc                             /
+```
+
+### Application Configs
+
+```bash
+stot -l .config/alacritty
+stot -l .config/doom
+stot -l .config/dunst
+stot -l .config/i3
+stot -l .config/kitty
+stot -l .config/nvim
+stot -l .config/polybar
+stot -l .config/ranger
+stot -l .config/rofi
+# ... and more
+```
+
+### System Files
+
+```bash
+stot -c etc/pacman.conf
+stot -c etc/hosts
+stot -c etc/locale.conf
+stot -c boot/efi/EFI/refind/refind.conf
+```
+
+## Post-Installation
+
+<Steps>
+  <Step title="Restart Your Shell">
+    ```bash
+    exec zsh
+    ```
+  </Step>
+
+  <Step title="Log Out and Log Back In">
+    For i3 and other configurations to take effect, log out and select i3 as your window manager at the login screen.
+  </Step>
+
+  <Step title="Configure Powerlevel10k">
+    On first run, Powerlevel10k will launch its configuration wizard:
+
+    ```bash
+    p10k configure
+    ```
+  </Step>
+
+  <Step title="Verify Installation">
+    Test the custom commands:
+
+    ```bash
+    status      # System summary
+    color       # Test terminal colors
+    PATH        # View your PATH
+    ```
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Stot command not found">
+    Ensure `~/.local/bin` is in your PATH:
+
+    ```bash
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshenv
+    source ~/.zshenv
+    ```
+  </Accordion>
+
+  <Accordion title="Permission denied errors">
+    System file operations require sudo. The `stot -c` commands in `sync.sh` will automatically use sudo.
+  </Accordion>
+
+  <Accordion title="Symlink conflicts">
+    If you have existing files, `stot` will remove them before creating symlinks. Back up important files first.
+  </Accordion>
+
+  <Accordion title="i3 doesn't start">
+    Ensure i3-gaps is installed and you've selected i3 at your display manager login screen.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<Card title="Quick Start Guide" icon="bolt" href="/quickstart">
+  Learn how to use the configured system and custom commands
+</Card>

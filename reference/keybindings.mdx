@@ -1,0 +1,316 @@
+---
+title: i3 Keybindings Reference
+description: Complete keyboard shortcut reference for i3 window manager configuration
+---
+
+This reference documents all keybindings configured in the i3 window manager. The modifier key is set to `Super` (Windows key).
+
+## Configuration
+
+- **Modifier Key:** `$mod` = `Super` (Mod4)
+- **Font:** URWGothic-Book 11
+- **Config File:** `~/.config/i3/config`
+
+---
+
+## Window Management
+
+### Basic Window Operations
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+Shift+q` | Kill focused window |
+| `$mod+Shift+Space` | Toggle between tiling and floating mode |
+| `$mod+Space` | Change focus between tiling and floating windows |
+| `$mod+a` | Focus parent container |
+
+### Window Focus
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+j` | Focus left |
+| `$mod+k` | Focus down |
+| `$mod+l` | Focus up |
+| `$mod+semicolon` | Focus right |
+| `$mod+Left` | Focus left |
+| `$mod+Down` | Focus down |
+| `$mod+Up` | Focus up |
+| `$mod+Right` | Focus right |
+
+### Move Windows
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+Shift+j` | Move window left |
+| `$mod+Shift+k` | Move window down |
+| `$mod+Shift+l` | Move window up |
+| `$mod+Shift+semicolon` | Move window right |
+| `$mod+Shift+Left` | Move window left |
+| `$mod+Shift+Down` | Move window down |
+| `$mod+Shift+Up` | Move window up |
+| `$mod+Shift+Right` | Move window right |
+
+---
+
+## Window Layouts
+
+### Split & Layout
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+h` | Split horizontally |
+| `$mod+v` | Split vertically |
+| `$mod+s` | Stacking layout |
+| `$mod+w` | Tabbed layout |
+| `$mod+e` | Toggle split layout |
+
+### Resize Mode
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+r` | Enter resize mode |
+
+**In Resize Mode:**
+
+| Key | Action |
+|-----|--------|
+| `j` / `Left` | Shrink width by 10px |
+| `k` / `Down` | Grow height by 10px |
+| `l` / `Up` | Shrink height by 10px |
+| `semicolon` / `Right` | Grow width by 10px |
+| `Return` / `Escape` / `$mod+r` | Exit resize mode |
+
+### Quick Resize (1px increments)
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+Ctrl+Right` | Shrink width by 1px |
+| `$mod+Ctrl+Up` | Grow height by 1px |
+| `$mod+Ctrl+Down` | Shrink height by 1px |
+| `$mod+Ctrl+Left` | Grow width by 1px |
+
+### Quick Resize (10px increments)
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+Ctrl+Shift+Right` | Shrink width by 10px |
+| `$mod+Ctrl+Shift+Up` | Grow height by 10px |
+| `$mod+Ctrl+Shift+Down` | Shrink height by 10px |
+| `$mod+Ctrl+Shift+Left` | Grow width by 10px |
+
+---
+
+## Workspaces
+
+### Switch to Workspace
+
+| Keybinding | Workspace |
+|------------|----------|
+| `$mod+1` | Workspace 1 |
+| `$mod+2` | Workspace 2 |
+| `$mod+3` | Workspace 3 |
+| `$mod+4` | Workspace 4 |
+| `$mod+5` | Workspace 5 |
+| `$mod+6` | Workspace 6 |
+| `$mod+7` | Workspace 7 |
+| `$mod+8` | Workspace 8 |
+| `$mod+9` | Workspace 9 |
+| `$mod+0` | Workspace 10 |
+| `$mod+m` | Workspace 11 (Music) |
+| `$mod+c` | Workspace 12 (Teams) |
+| `$mod+f` | Workspace 13 (Frontend) |
+| `$mod+b` | Workspace 14 (Backend) |
+| `$mod+x` | Workspace 20 (Trash) |
+
+### Move Window to Workspace
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+Shift+1` | Move to workspace 1 |
+| `$mod+Shift+2` | Move to workspace 2 |
+| `$mod+Shift+3` | Move to workspace 3 |
+| `$mod+Shift+4` | Move to workspace 4 |
+| `$mod+Shift+5` | Move to workspace 5 |
+| `$mod+Shift+6` | Move to workspace 6 |
+| `$mod+Shift+7` | Move to workspace 7 |
+| `$mod+Shift+8` | Move to workspace 8 |
+| `$mod+Shift+9` | Move to workspace 9 |
+| `$mod+Shift+0` | Move to workspace 10 |
+| `$mod+Shift+m` | Move to workspace 11 (Music) |
+| `$mod+Shift+c` | Move to workspace 12 (Teams) |
+| `$mod+Shift+f` | Move to workspace 13 (Frontend) |
+| `$mod+Shift+b` | Move to workspace 14 (Backend) |
+| `$mod+Shift+x` | Move to workspace 20 (Trash) |
+
+### Multi-Monitor
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+Ctrl+greater` | Move workspace to right monitor |
+| `$mod+Ctrl+less` | Move workspace to left monitor |
+
+**Monitor Configuration:**
+- Monitor 0: DP-4
+- Monitor 1: HDMI-0
+
+---
+
+## Application Launchers
+
+### Terminals
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+Return` | Launch Kitty terminal |
+| `$mod+KP_Enter` | Launch Kitty with ranger file manager |
+| `$mod+KP_Add` | Launch Alacritty terminal |
+
+### Quick Launch Applications
+
+| Keybinding | Application |
+|------------|-------------|
+| `$mod+F1` | Firefox browser |
+| `$mod+F2` | Thunar file manager |
+| `$mod+F3` | Spotify |
+
+### Launchers & Menus
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+d` | Open Rofi application launcher |
+| `$mod+Tab` | Open Rofi power menu |
+| `$mod+Shift+d` | Open Rofi calculator |
+
+---
+
+## Media Controls
+
+### Audio Playback (Spotify)
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+Insert` | Play/Pause Spotify |
+| `$mod+Home` | Next track |
+| `$mod+End` | Previous track |
+
+### Volume Control
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+Prior` (Page Up) | Increase volume by 5% |
+| `$mod+Next` (Page Down) | Decrease volume by 5% |
+| `XF86AudioRaiseVolume` | Increase volume by 10% |
+| `XF86AudioLowerVolume` | Decrease volume by 10% |
+| `XF86AudioMute` | Toggle mute |
+| `XF86AudioMicMute` | Toggle microphone mute |
+
+---
+
+## Screenshots & Utilities
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+Print` | Launch Flameshot screenshot tool |
+| `$mod+Shift+Print` | Launch Gcolor2 color picker |
+| `$mod+Scroll_Lock` | Lock screen with i3lock (black screen) |
+
+---
+
+## System Controls
+
+### i3 Management
+
+| Keybinding | Action |
+|------------|--------|
+| `$mod+Shift+t` | Reload i3 configuration |
+| `$mod+Shift+r` | Restart i3 (preserves layout) |
+| `$mod+Shift+e` | Exit i3 (with confirmation dialog) |
+
+---
+
+## Mouse Bindings
+
+| Action | Binding |
+|--------|----------|
+| Drag floating window | `$mod+Left Click` |
+
+---
+
+## Advanced Configuration
+
+<AccordionGroup>
+  <Accordion title="Workspace Monitor Assignments">
+    Specific workspaces are assigned to monitors:
+
+    **Monitor 0 (DP-4):**
+    - Workspace 1
+    - Workspace 11 (Music)
+    - Workspace 12 (Teams)
+    - Workspace 13 (Frontend)
+    - Workspace 14 (Backend)
+
+    **Monitor 1 (HDMI-0):**
+    - Workspace 2-5
+    - Workspace 10
+    - Workspace 20 (Trash)
+  </Accordion>
+
+  <Accordion title="Window Rules">
+    Special window behaviors:
+
+    ```
+    # Floating windows
+    - Pop-up windows
+    - Task dialogs
+    - Plasma desktop
+    - System settings
+    - Pavucontrol
+    - Steam Friends List
+
+    # Border configuration
+    - All windows: 3px border
+    - Gaps: 8px inner, 0px outer
+    ```
+  </Accordion>
+
+  <Accordion title="Auto-start Applications">
+    Applications launched on i3 startup:
+
+    ```bash
+    - xss-lock (screen lock manager)
+    - nm-applet (NetworkManager)
+    - volumeicon (volume control)
+    - polybar (status bar)
+    - autotiling (automatic layout)
+    - dunst (notifications)
+    - picom (compositor)
+    ```
+  </Accordion>
+
+  <Accordion title="Color Scheme">
+    Window border colors:
+
+    ```
+    client.focused:          #ffffff (white)
+    client.focused_inactive: #5f676a (gray)
+    client.unfocused:        #222222 (dark gray)
+    client.urgent:           #FF8383 (red)
+    client.placeholder:      #0c0c0c (black)
+    client.background:       #ffffff (white)
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Quick Reference Card
+
+<Tip>
+  **Most Used Keybindings:**
+  - `$mod+Return` - Terminal
+  - `$mod+d` - App launcher
+  - `$mod+Shift+q` - Close window
+  - `$mod+1-9` - Switch workspaces
+  - `$mod+h/v` - Split windows
+  - `$mod+Shift+r` - Restart i3
+</Tip>

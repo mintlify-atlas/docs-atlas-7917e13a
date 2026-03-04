@@ -1,0 +1,571 @@
+---
+title: sync.sh Script
+description: Detailed documentation of the dotfiles synchronization script
+---
+
+The `sync.sh` script is the primary tool for synchronizing dotfiles from the repository to your system. It uses the custom `stot` wrapper to create symbolic links and copy files to their appropriate locations.
+
+## Overview
+
+**Location:** `~/dotfiles/sync.sh`
+
+**Purpose:** Synchronizes all dotfiles by creating symbolic links from `~/dotfiles/` to their target locations in the home directory and system directories.
+
+**Dependencies:**
+- `stot` command (automatically bootstrapped)
+- `echo_separate` command (for formatted output)
+
+---
+
+## Usage
+
+### Standard Sync
+
+```bash
+sh ~/dotfiles/sync.sh
+```
+
+Synchronizes all standard configuration files and directories.
+
+### X11 Configuration Sync
+
+```bash
+sh ~/dotfiles/sync.sh x
+```
+
+Includes X11-specific system configuration files in addition to standard sync.
+
+<Warning>
+  The sync script will:
+  - Create symbolic links (overwrites existing links)
+  - Require `sudo` for system file operations
+  - Modify files in `/etc/`, `/boot/`, `/usr/`, and `/srv/`
+  
+  **Backup important files before running!**
+</Warning>
+
+---
+
+## Script Source
+
+```bash
+#!/bin/bash
+
+# Bootstrap stot command
+[ ! -f ~/.local/bin/stot ] && ln -sv ~/dotfiles/bin/stot ~/.local/bin/stot
+
+# X11 System Configuration (Optional)
+if [ "$1" == "x" ]; then
+    echo_separate "X11"
+    stot -l  home/.xinitrc                           /
+    stot -l  home/.xprofile                          /
+
+    stot -c  etc/X11/xorg.conf.d/00-keyboard.conf
+    stot -c  etc/X11/xorg.conf.d/50-mouse-acceleration.conf
+    stot -c  etc/X11/xorg.conf
+fi
+
+# Home Directory Files
+echo_separate "/home"
+stot -l home/.nvidia-settings-rc                /
+stot -l home/.screenlayout-main.sh              /
+stot -l home/.Xresources                        /
+stot -l home/.zshenv                            /
+stot -l home/.zshrc                             /
+
+# Application Configuration
+echo_separate "/home/.config"
+stot -l .config/alacritty
+stot -l .config/BetterDiscord
+stot -l .config/cava
+stot -l .config/doom
+stot -l .config/dunst
+stot -l .config/flameshot
+stot -l .config/i3
+stot -l .config/i3blocks
+stot -l .config/kitty
+stot -l .config/lf
+stot -l .config/mpv
+stot -l .config/nvim
+stot -l .config/neofetch
+stot -l .config/polybar
+stot -l .config/ranger
+stot -l .config/redshift
+stot -l .config/rofi
+stot -l .config/xdg-desktop-portal
+stot -l .config/xmobar
+stot -l .config/xmonad
+stot -l .config/zathura
+
+# Special Configuration Files
+stot -l .config/firefox/user.js                  .mozilla/firefox/vdhmokqy.default-nightly/user.js
+stot -l .config/dolphin/dolphinrc                .config/dolphinrc
+stot -l .config/git/.gitconfig                   .gitconfig
+stot -l .config/pavucontrol/pavucontrol.ini      .config/pavucontrol.ini
+stot -l .config/picom/picom.conf                 .config/picom.conf
+stot -l .config/most/.mostrc                     .mostrc
+stot -l .config/tmux/.tmux.conf                  .tmux.conf
+stot -l .config/yakuake/yakuakerc                .config/yakuakerc
+
+stot -l .config/user-dirs.dirs
+stot -l .config/plasma-localerc
+
+# Custom Scripts
+echo_separate "/home/.local"
+stot -l bin .local/bin
+
+# Bootloader
+echo_separate "/boot"
+stot -c boot/efi/EFI/refind/refind.conf
+
+# System Configuration
+echo_separate "/etc"
+stot -c etc/dhcpcd.conf
+stot -c etc/hosts
+stot -c etc/locale.conf
+stot -c etc/locale.gen
+stot -c etc/pacman.conf
+stot -c etc/resolv.conf
+stot -c etc/sysctl.conf
+stot -c etc/vconsole.conf
+
+stot -c etc/httpd/conf/httpd.conf
+stot -c etc/httpd/conf/extra/phpmyadmin.conf
+stot -c etc/lightdm/lightdm.conf
+stot -c etc/lightdm/lightdm-webkit2-greeter.conf
+
+stot -c etc/modprobe.d/blacklist.conf
+stot -c etc/pacman.d/mirrorlist
+stot -c etc/php/php.ini
+stot -c etc/pulse/default.pa
+stot -c etc/systemd/logind.conf
+stot -c etc/xdg/reflector/reflector.conf
+
+# System Resources
+echo_separate "/usr"
+stot -c usr/lib/NetworkManager/conf.d/20-connectivity.conf
+
+# Service Data
+echo_separate "/srv"
+stot -c srv/http/test.php
+
+echo -e "\n"
+```
+
+---
+
+## Script Breakdown
+
+<AccordionGroup>
+  <Accordion title="Bootstrap Section">
+    ```bash
+    [ ! -f ~/.local/bin/stot ] && ln -sv ~/dotfiles/bin/stot ~/.local/bin/stot
+    ```
+
+    **Purpose:** Ensures the `stot` command is available before running the sync.
+
+    - Checks if `~/.local/bin/stot` exists
+    - If not, creates a symbolic link from `~/dotfiles/bin/stot`
+    - This makes `stot` command available for the rest of the script
+  </Accordion>
+
+  <Accordion title="X11 Configuration (Optional)">
+    ```bash
+    if [ "$1" == "x" ]; then
+        stot -l  home/.xinitrc                           /
+        stot -l  home/.xprofile                          /
+        stot -c  etc/X11/xorg.conf.d/00-keyboard.conf
+        stot -c  etc/X11/xorg.conf.d/50-mouse-acceleration.conf
+        stot -c  etc/X11/xorg.conf
+    fi
+    ```
+
+    **Activated by:** `sh sync.sh x`
+
+    **Purpose:** Syncs X Window System configuration files.
+
+    **Files:**
+    - X session initialization (`.xinitrc`, `.xprofile`)
+    - Xorg server configuration (keyboard, mouse, main config)
+  </Accordion>
+
+  <Accordion title="Home Directory Files">
+    ```bash
+    stot -l home/.nvidia-settings-rc                /
+    stot -l home/.screenlayout-main.sh              /
+    stot -l home/.Xresources                        /
+    stot -l home/.zshenv                            /
+    stot -l home/.zshrc                             /
+    ```
+
+    **Operation:** Creates symbolic links (`-l` flag)
+
+    **Target:** `~/` (home directory root)
+
+    **Files:**
+    - NVIDIA settings
+    - Display layout script
+    - X resources
+    - Zsh configuration
+  </Accordion>
+
+  <Accordion title="Application Configurations">
+    ```bash
+    stot -l .config/alacritty
+    stot -l .config/i3
+    stot -l .config/nvim
+    # ... (21 total directories)
+    ```
+
+    **Operation:** Creates symbolic links for entire directories
+
+    **Target:** `~/.config/`
+
+    **Pattern:**
+    ```
+    ~/dotfiles/.config/app/* → ~/.config/app/*
+    ```
+  </Accordion>
+
+  <Accordion title="Special Configuration Files">
+    ```bash
+    stot -l .config/firefox/user.js    .mozilla/firefox/vdhmokqy.default-nightly/user.js
+    stot -l .config/git/.gitconfig     .gitconfig
+    stot -l .config/picom/picom.conf   .config/picom.conf
+    ```
+
+    **Purpose:** Links files to non-standard locations
+
+    **Pattern:**
+    ```
+    stot -l SOURCE CUSTOM_TARGET
+    ```
+
+    These files don't follow the standard XDG directory pattern and require explicit target paths.
+  </Accordion>
+
+  <Accordion title="Custom Scripts">
+    ```bash
+    stot -l bin .local/bin
+    ```
+
+    **Operation:** Links all scripts in `bin/` directory
+
+    **Result:**
+    ```
+    ~/dotfiles/bin/* → ~/.local/bin/*
+    ```
+
+    Makes all custom commands available in `$PATH`.
+  </Accordion>
+
+  <Accordion title="System Files (Root Required)">
+    ```bash
+    stot -c boot/efi/EFI/refind/refind.conf
+    stot -c etc/hosts
+    stot -c etc/pacman.conf
+    # ... (18 total files)
+    ```
+
+    **Operation:** Copies files (`-c` flag) with sudo privileges
+
+    **Target:** Root directories (`/boot/`, `/etc/`, `/usr/`, `/srv/`)
+
+    **Warning:** These operations require root access and modify system files.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Sync Order
+
+The script syncs files in this order:
+
+1. **Bootstrap** - Ensure `stot` is available
+2. **X11** - (Optional) X Window System config
+3. **Home** - User home directory files
+4. **Config** - Application configurations in `.config/`
+5. **Special** - Non-standard config file locations
+6. **Scripts** - Custom commands in `bin/`
+7. **Boot** - Bootloader configuration
+8. **System** - System-wide configuration files
+9. **Resources** - System resources
+10. **Services** - Service data files
+
+---
+
+## Operation Modes
+
+### Link Mode (`-l`)
+
+**Command:** `stot -l SOURCE [TARGET]`
+
+**Behavior:**
+- Creates symbolic links from dotfiles to target location
+- Default target: `~/<SOURCE>`
+- Preserves file structure
+- Changes in dotfiles automatically reflected in system
+
+**Example:**
+```bash
+stot -l .config/i3
+# Result: ~/.config/i3/* → ~/dotfiles/.config/i3/*
+```
+
+### Copy Mode (`-c`)
+
+**Command:** `stot -c SOURCE [TARGET]`
+
+**Behavior:**
+- Copies files to system directories
+- Requires sudo for `/etc/`, `/boot/`, etc.
+- Default target: `/<SOURCE>`
+- Creates independent copy (not linked)
+
+**Example:**
+```bash
+stot -c etc/hosts
+# Result: /etc/hosts ← ~/dotfiles/etc/hosts (copy)
+```
+
+---
+
+## Output Format
+
+The script uses `echo_separate` to create formatted section headers:
+
+```
+==== /home ==========================================
+|:ok | ln  | 📁 | home/.zshrc
+|:ok | ln  | 📁 | home/.Xresources
+
+==== /home/.config ==================================
+|:ok | ln  | 📁 | .config/i3
+|:ok | ln  | 📁 | .config/nvim
+```
+
+**Status Indicators:**
+- `|:ok |` - Successful operation
+- `|:error |` - Failed operation
+
+**Operation Types:**
+- `ln | 📄 |` - Symbolic link (file)
+- `ln | 📁 |` - Symbolic link (directory)
+- `cp | 📄 |` - Copy (file)
+
+---
+
+## Error Handling
+
+The `stot` command handles common errors:
+
+<AccordionGroup>
+  <Accordion title="Missing Source File">
+    ```
+    ~/dotfiles/etc/example is not valid
+    ```
+    
+    **Cause:** Source file doesn't exist in dotfiles repo
+    
+    **Solution:** Verify file path or remove from sync.sh
+  </Accordion>
+
+  <Accordion title="Permission Denied">
+    ```
+    |:error | /etc/hosts
+    ```
+    
+    **Cause:** Insufficient permissions for system files
+    
+    **Solution:** Run with sudo or fix permissions
+  </Accordion>
+
+  <Accordion title="Directory Not Found">
+    ```
+    |:error | ~/.config/example not found
+    ```
+    
+    **Cause:** Parent directory doesn't exist
+    
+    **Solution:** `stot` automatically creates parent directories
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Before First Run" icon="shield-check">
+    1. Backup existing configs
+    2. Review sync.sh contents
+    3. Check file paths match your system
+    4. Test with dry run if possible
+  </Card>
+
+  <Card title="After Changes" icon="rotate">
+    1. Edit files in `~/dotfiles/`
+    2. Changes auto-reflect (symlinks)
+    3. Commit to git repository
+    4. Re-run sync.sh on new machines
+  </Card>
+
+  <Card title="System Files" icon="server">
+    1. Use copy mode (`-c`) for `/etc/`
+    2. Require sudo privileges
+    3. Test changes carefully
+    4. Keep backups of originals
+  </Card>
+
+  <Card title="Customization" icon="wrench">
+    1. Edit sync.sh to add/remove files
+    2. Follow existing patterns
+    3. Use `stot -h` for help
+    4. Test on non-critical system first
+  </Card>
+</CardGroup>
+
+---
+
+## Common Use Cases
+
+### New System Setup
+
+```bash
+# Clone dotfiles
+git clone git@github.com:joaopedroaats/dotfiles.git ~/dotfiles
+
+# Run full sync (without X11)
+sh ~/dotfiles/sync.sh
+
+# Or with X11 configuration
+sh ~/dotfiles/sync.sh x
+```
+
+### Update Existing Configuration
+
+```bash
+# Edit files in dotfiles repo
+vim ~/dotfiles/.config/i3/config
+
+# No need to re-run sync (symlinks)
+# Just restart the application
+$mod+Shift+r  # Restart i3
+```
+
+### Sync System Files After Changes
+
+```bash
+# After modifying system config
+vim ~/dotfiles/etc/pacman.conf
+
+# Re-sync to apply
+sh ~/dotfiles/sync.sh
+```
+
+---
+
+## Advanced Usage
+
+### Custom Sync Script
+
+You can create a custom sync script for specific configurations:
+
+```bash
+#!/bin/bash
+# custom-sync.sh
+
+# Only sync development tools
+stot -l .config/nvim
+stot -l .config/git/.gitconfig .gitconfig
+stot -l bin .local/bin
+```
+
+### Selective Sync
+
+```bash
+# Extract specific commands from sync.sh
+stot -l .config/i3
+stot -l .config/polybar
+stot -l .config/kitty
+```
+
+---
+
+## Dependencies
+
+<Note>
+  The sync script requires:
+  - Bash or Zsh shell
+  - `stot` command (auto-bootstrapped)
+  - `echo_separate` command
+  - GNU coreutils (`ln`, `mkdir`, `rm`)
+  - `sudo` for system file operations
+</Note>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Command Not Found: stot">
+    **Problem:** `stot` command not in PATH
+    
+    **Solution:**
+    ```bash
+    # Manually create symlink
+    mkdir -p ~/.local/bin
+    ln -s ~/dotfiles/bin/stot ~/.local/bin/stot
+    
+    # Add to PATH if needed
+    export PATH="$HOME/.local/bin:$PATH"
+    ```
+  </Accordion>
+
+  <Accordion title="Permission Denied on System Files">
+    **Problem:** Cannot copy to `/etc/`, `/boot/`, etc.
+    
+    **Solution:**
+    ```bash
+    # Run specific commands with sudo
+    sudo sh ~/dotfiles/sync.sh
+    
+    # Or manually copy individual files
+    sudo cp ~/dotfiles/etc/hosts /etc/hosts
+    ```
+  </Accordion>
+
+  <Accordion title="Broken Symlinks">
+    **Problem:** Links pointing to wrong location
+    
+    **Solution:**
+    ```bash
+    # Remove broken link
+    rm ~/.config/i3
+    
+    # Re-run sync
+    sh ~/dotfiles/sync.sh
+    ```
+  </Accordion>
+
+  <Accordion title="Firefox Profile Path">
+    **Problem:** Firefox profile path doesn't match
+    
+    **Solution:**
+    ```bash
+    # Find your profile directory
+    ls ~/.mozilla/firefox/
+    
+    # Update sync.sh with correct path
+    stot -l .config/firefox/user.js .mozilla/firefox/YOUR_PROFILE/user.js
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## See Also
+
+- [Command Reference](/reference/command-list) - Documentation for `stot` command
+- [Directory Structure](/reference/directory-structure) - Detailed directory breakdown
+- [Installation Guide](/setup/installation) - Initial setup instructions

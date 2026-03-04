@@ -1,0 +1,442 @@
+---
+title: Audio Setup (PulseAudio)
+description: Configure PulseAudio for audio management on Arch Linux
+---
+
+## Overview
+
+PulseAudio is a sound server that provides advanced audio routing and mixing capabilities for Linux systems. This guide covers installation and configuration for Arch Linux.
+
+## Installation
+
+Install PulseAudio and common utilities:
+
+```bash
+sudo pacman -S pulseaudio pulseaudio-alsa pavucontrol
+```
+
+Packages:
+- `pulseaudio` - Core sound server
+- `pulseaudio-alsa` - ALSA integration
+- `pavucontrol` - GUI volume control
+
+Optional packages:
+
+```bash
+sudo pacman -S pulseaudio-bluetooth  # Bluetooth audio support
+sudo pacman -S pulseaudio-jack       # JACK audio integration
+```
+
+## User Mode vs System Mode
+
+PulseAudio runs in **per-user mode** by default, which is the recommended configuration for desktop systems.
+
+<Warning>
+Running PulseAudio in system-wide mode is not recommended for most use cases and can cause security and performance issues.
+</Warning>
+
+## Configuration File
+
+The main configuration file is located at `/etc/pulse/default.pa`.
+
+User-specific configuration (if needed):
+
+```bash
+mkdir -p ~/.config/pulse
+cp /etc/pulse/default.pa ~/.config/pulse/
+```
+
+## Module Loading
+
+### Device Restore Modules
+
+Automatically restore volume levels and device settings:
+
+```conf
+load-module module-device-restore
+load-module module-stream-restore
+load-module module-card-restore
+```
+
+These modules save:
+- Device volume levels
+- Stream volumes
+- Sound card profiles
+
+### Application Integration
+
+Augment property information from .desktop files:
+
+```conf
+load-module module-augment-properties
+```
+
+This improves application identification in volume controls.
+
+### Port Switching
+
+Automatically switch audio when devices are connected/disconnected:
+
+```conf
+load-module module-switch-on-port-available
+```
+
+<Warning>
+This module should be loaded after restore modules but before detection modules.
+</Warning>
+
+## Hardware Detection
+
+### Automatic Detection (Recommended)
+
+PulseAudio uses `module-udev-detect` for automatic hardware discovery:
+
+```conf
+.ifexists module-udev-detect.so
+load-module module-udev-detect
+.else
+load-module module-detect
+.endif
+```
+
+This automatically detects and configures:
+- Sound cards
+- USB audio devices
+- HDMI audio outputs
+
+### Manual Driver Loading
+
+For systems without udev support or for specific hardware:
+
+```conf
+#load-module module-alsa-sink
+#load-module module-alsa-source device=hw:1,0
+#load-module module-oss device="/dev/dsp" sink_name=output source_name=input
+```
+
+## Bluetooth Support
+
+Enable Bluetooth audio devices:
+
+```conf
+.ifexists module-bluetooth-policy.so
+load-module module-bluetooth-policy
+.endif
+
+.ifexists module-bluetooth-discover.so
+load-module module-bluetooth-discover
+.endif
+```
+
+Required package:
+
+```bash
+sudo pacman -S pulseaudio-bluetooth
+```
+
+## JACK Integration
+
+For professional audio work, integrate with JACK:
+
+```conf
+.ifexists module-jackdbus-detect.so
+.nofail
+load-module module-jackdbus-detect channels=2
+.fail
+.endif
+```
+
+This allows PulseAudio and JACK to coexist, automatically connecting when JACK is running.
+
+## Protocol Modules
+
+### Local Protocols
+
+Enable Unix socket communication:
+
+```conf
+load-module module-dbus-protocol
+load-module module-native-protocol-unix
+```
+
+### Network Audio (Optional)
+
+For streaming audio over the network:
+
+```conf
+#load-module module-native-protocol-tcp
+#load-module module-zeroconf-publish
+```
+
+<Warning>
+Network audio protocols are disabled by default for security. Only enable on trusted networks.
+</Warning>
+
+### RTP Streaming (Optional)
+
+For multicast audio streaming:
+
+```conf
+#load-module module-null-sink sink_name=rtp format=s16be channels=2 rate=44100
+#load-module module-rtp-send source=rtp.monitor
+#load-module module-rtp-recv
+```
+
+## Advanced Features
+
+### Default Device Management
+
+Automatically restore default sink/source when changed:
+
+```conf
+load-module module-default-device-restore
+```
+
+### Fallback Sink
+
+Ensure a sink is always available (even if it's silent):
+
+```conf
+load-module module-always-sink
+```
+
+### Intended Roles
+
+Route audio based on application roles (music, video, game, etc.):
+
+```conf
+load-module module-intended-roles
+```
+
+### Idle Suspension
+
+Automatically suspend audio devices when idle to save power:
+
+```conf
+load-module module-suspend-on-idle
+```
+
+### Session Management
+
+Integrate with systemd login sessions:
+
+```conf
+.ifexists module-systemd-login.so
+load-module module-systemd-login
+.endif
+```
+
+### Positioned Event Sounds
+
+Enable 3D audio positioning for event sounds:
+
+```conf
+load-module module-position-event-sounds
+```
+
+### Audio Filtering
+
+Automatic filter loading (echo cancellation, noise reduction, etc.):
+
+```conf
+load-module module-filter-heuristics
+load-module module-filter-apply
+```
+
+These modules automatically apply appropriate filters based on hardware and usage patterns.
+
+### Cork on Phone Calls
+
+Automatically pause music when phone audio is active:
+
+```conf
+# load-module module-role-cork
+```
+
+Uncomment to enable.
+
+## Setting Default Devices
+
+Set default sink (output) and source (input):
+
+```conf
+#set-default-sink output
+#set-default-source input
+```
+
+Alternatively, set via command line:
+
+```bash
+pactl set-default-sink alsa_output.pci-0000_00_1f.3.analog-stereo
+pactl set-default-source alsa_input.pci-0000_00_1f.3.analog-stereo
+```
+
+## Command Line Tools
+
+### pactl
+
+Control PulseAudio from the command line:
+
+```bash
+# List sinks (outputs)
+pactl list sinks short
+
+# List sources (inputs)
+pactl list sources short
+
+# Set volume (0-65536, 65536 = 100%)
+pactl set-sink-volume @DEFAULT_SINK@ 50%
+
+# Mute/unmute
+pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+# Get server info
+pactl info
+```
+
+### pacmd
+
+Interactive PulseAudio command line:
+
+```bash
+# Enter interactive mode
+pacmd
+
+# Or run single commands
+pacmd list-sinks
+pacmd list-sources
+pacmd set-default-sink <sink-name>
+```
+
+### pavucontrol
+
+Launch the graphical volume control:
+
+```bash
+pavucontrol
+```
+
+Features:
+- Per-application volume control
+- Device selection and profiles
+- Recording device configuration
+- Port selection for multi-output cards
+
+## Troubleshooting
+
+### No Sound Output
+
+1. Check if PulseAudio is running:
+   ```bash
+   pulseaudio --check
+   echo $?  # 0 = running, 1 = not running
+   ```
+
+2. Start PulseAudio if not running:
+   ```bash
+   pulseaudio --start
+   ```
+
+3. Check for errors:
+   ```bash
+   pulseaudio -vvv
+   ```
+
+### Audio Crackling or Stuttering
+
+Edit `/etc/pulse/daemon.conf` (or `~/.config/pulse/daemon.conf`):
+
+```conf
+default-sample-rate = 48000
+alternate-sample-rate = 44100
+default-fragments = 4
+default-fragment-size-msec = 25
+```
+
+Restart PulseAudio:
+
+```bash
+pulseaudio -k
+pulseaudio --start
+```
+
+### Bluetooth Audio Issues
+
+1. Ensure Bluetooth modules are loaded:
+   ```bash
+   pactl list modules | grep bluetooth
+   ```
+
+2. Restart Bluetooth service:
+   ```bash
+   sudo systemctl restart bluetooth
+   ```
+
+3. Reload PulseAudio:
+   ```bash
+   pulseaudio -k
+   pulseaudio --start
+   ```
+
+### Device Not Detected
+
+1. Check ALSA devices:
+   ```bash
+   aplay -l   # List playback devices
+   arecord -l # List recording devices
+   ```
+
+2. Reload ALSA modules:
+   ```bash
+   sudo alsactl restore
+   ```
+
+3. Restart PulseAudio:
+   ```bash
+   systemctl --user restart pulseaudio
+   ```
+
+### Check PulseAudio Logs
+
+```bash
+journalctl --user -u pulseaudio -f
+```
+
+## Starting PulseAudio
+
+### Automatic Start (Recommended)
+
+PulseAudio starts automatically when audio applications run (socket activation via systemd).
+
+### Manual Start
+
+```bash
+pulseaudio --start
+```
+
+### Restart PulseAudio
+
+```bash
+pulseaudio -k        # Kill current instance
+pulseaudio --start   # Start new instance
+```
+
+Or with systemd:
+
+```bash
+systemctl --user restart pulseaudio
+```
+
+## File Locations
+
+- System configuration: `/etc/pulse/default.pa`
+- User configuration: `~/.config/pulse/default.pa`
+- Daemon settings: `/etc/pulse/daemon.conf`
+- User daemon settings: `~/.config/pulse/daemon.conf`
+- Client settings: `/etc/pulse/client.conf`
+
+## Additional Resources
+
+- [Arch Wiki: PulseAudio](https://wiki.archlinux.org/title/PulseAudio)
+- [PulseAudio Documentation](https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/)
+- [PulseAudio Troubleshooting](https://wiki.archlinux.org/title/PulseAudio/Troubleshooting)

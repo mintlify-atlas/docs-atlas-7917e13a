@@ -1,0 +1,537 @@
+---
+title: 'update - System Update Utility'
+description: 'Comprehensive system and package update utility for Arch Linux systems'
+---
+
+## Overview
+
+`update` is a zsh-based system update utility that orchestrates updates across multiple package managers, tools, and plugin systems in a single command. Designed specifically for Arch Linux systems using yay as the AUR helper.
+
+<Info>
+  This utility combines yay, tldr, and zinit updates into a streamlined workflow with visual section separators.
+</Info>
+
+## Features
+
+- Update all system packages via yay (AUR + official repos)
+- Refresh tldr pages database
+- Update zinit zsh plugins
+- Optional VS Code Insiders build from AUR
+- Visual section separators for clear output
+- Non-interactive updates with auto-confirmation
+
+---
+
+## Installation
+
+<Steps>
+  <Step title="Prerequisites">
+    Install required dependencies:
+    ```bash
+    # Install yay (AUR helper)
+    sudo pacman -S --needed base-devel git
+    git clone https://aur.archlinux.org/yay.git
+    cd yay
+    makepkg -si
+    
+    # Install tldr
+    yay -S tldr
+    
+    # Install zinit (if using zsh)
+    bash -c "$(curl --fail --show-error --silent --location https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh)"
+    ```
+  </Step>
+  
+  <Step title="Install echo_separate Helper">
+    Ensure the `echo_separate` utility is in your PATH:
+    ```bash
+    chmod +x ~/workspace/source/bin/echo_separate
+    ```
+  </Step>
+  
+  <Step title="Make Update Executable">
+    ```bash
+    chmod +x ~/workspace/source/bin/update
+    ```
+  </Step>
+  
+  <Step title="Add to PATH">
+    ```bash
+    echo 'export PATH="$HOME/workspace/source/bin:$PATH"' >> ~/.zshrc
+    source ~/.zshrc
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Syntax
+
+```bash
+update [OPTIONS]
+```
+
+### Options
+
+<ParamField path="--all" type="flag">
+  Include VS Code Insiders AUR package rebuild and installation
+</ParamField>
+
+---
+
+## Usage Examples
+
+<Tabs>
+  <Tab title="Standard Update">
+    ```bash
+    # Run all standard updates
+    update
+    ```
+    
+    Updates:
+    - System packages (yay -Syyu)
+    - tldr pages database
+    - zinit plugins
+  </Tab>
+  
+  <Tab title="Full Update">
+    ```bash
+    # Include VS Code Insiders
+    update --all
+    ```
+    
+    Updates everything plus:
+    - Rebuilds VS Code Insiders from AUR
+    - Installs updated package
+  </Tab>
+</Tabs>
+
+---
+
+## What Gets Updated
+
+<Steps>
+  <Step title="Package Database Sync (yay)">
+    ```bash
+    yay -Syyu
+    ```
+    
+    Updates:
+    - Syncs package databases
+    - Refreshes all packages
+    - Includes AUR packages
+    - Updates official Arch packages
+    
+    <Info>
+      Double -y forces refresh even if databases appear up-to-date
+    </Info>
+  </Step>
+  
+  <Step title="Documentation (tldr)">
+    ```bash
+    tldr -u
+    ```
+    
+    Updates:
+    - Community-maintained command examples
+    - Simplified man pages
+    - Latest command usage patterns
+  </Step>
+  
+  <Step title="Zsh Plugins (zinit)">
+    ```bash
+    zinit update
+    ```
+    
+    Updates:
+    - All installed zinit plugins
+    - Zsh themes
+    - Plugin dependencies
+  </Step>
+  
+  <Step title="VS Code Insiders (--all only)">
+    ```bash
+    cd ~/.cache/yay/visual-studio-code-insiders-bin
+    makepkg -si --noconfirm
+    ```
+    
+    Updates:
+    - Rebuilds latest VS Code Insiders
+    - Installs without confirmation
+    - Uses cached build directory
+  </Step>
+</Steps>
+
+---
+
+## Source Code
+
+<Accordion title="View Full Implementation">
+```bash
+#!/usr/bin/env zsh
+
+
+[ "$1" = "--all" ] && echo_separate "makepkg vscode insiders" \
+                && cd ~/.cache/yay/visual-studio-code-insiders-bin \
+                && makepkg -si --noconfirm
+
+echo_separate "yay -Syu"
+yay -Syyu
+
+echo_separate "tldr -u"
+tldr -u
+
+echo_separate "zinit"
+zinit update
+
+# echo_separate "doom upgrade"
+# doom -y upgrade
+
+# echo_separate "cabal update"
+# cabal update
+```
+</Accordion>
+
+---
+
+## Output Format
+
+The utility uses `echo_separate` to create visual section headers:
+
+```
+==== yay -Syu  ==========================================
+:: Synchronizing package databases...
+ core is up to date
+ extra is up to date
+...
+
+==== tldr -u  ==========================================
+Successfully updated local database
+
+==== zinit  ============================================
+Updating plugins...
+...
+```
+
+---
+
+## Commented Features
+
+The script includes commented-out sections for additional tools:
+
+<AccordionGroup>
+  <Accordion title="Doom Emacs Updates">
+    ```bash
+    # echo_separate "doom upgrade"
+    # doom -y upgrade
+    ```
+    
+    Uncomment to enable automatic Doom Emacs framework updates:
+    ```bash
+    doom -y upgrade  # Non-interactive Doom Emacs upgrade
+    ```
+  </Accordion>
+  
+  <Accordion title="Cabal Package Manager">
+    ```bash
+    # echo_separate "cabal update"
+    # cabal update
+    ```
+    
+    Uncomment for Haskell development:
+    ```bash
+    cabal update  # Update Haskell package index
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Advanced Customization
+
+### Adding More Update Sections
+
+<CodeGroup>
+```bash Rust Toolchain
+# Add after zinit update
+echo_separate "rustup"
+rustup update
+```
+
+```bash Node.js Packages
+# Add global npm updates
+echo_separate "npm global"
+npm update -g
+```
+
+```bash Python Packages
+# Add pip updates
+echo_separate "pip"
+pip list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 pip install -U
+```
+
+```bash Flatpak
+# Add flatpak updates
+echo_separate "flatpak"
+flatpak update -y
+```
+</CodeGroup>
+
+### Custom Update Script
+
+<Tabs>
+  <Tab title="Basic Template">
+    ```bash
+    #!/usr/bin/env zsh
+    
+    # Your custom updates
+    echo_separate "Custom Section"
+    # Your commands here
+    
+    # Include original updates
+    echo_separate "yay -Syu"
+    yay -Syyu
+    
+    echo_separate "tldr -u"
+    tldr -u
+    
+    echo_separate "zinit"
+    zinit update
+    ```
+  </Tab>
+  
+  <Tab title="With Error Handling">
+    ```bash
+    #!/usr/bin/env zsh
+    
+    set -e  # Exit on error
+    
+    update_section() {
+      echo_separate "$1"
+      if ! $2; then
+        echo "Error updating $1"
+        return 1
+      fi
+    }
+    
+    update_section "yay" "yay -Syyu"
+    update_section "tldr" "tldr -u"
+    update_section "zinit" "zinit update"
+    ```
+  </Tab>
+  
+  <Tab title="With Logging">
+    ```bash
+    #!/usr/bin/env zsh
+    
+    LOGFILE="$HOME/.cache/update-log-$(date +%Y%m%d-%H%M%S).txt"
+    
+    {
+      echo_separate "yay -Syu"
+      yay -Syyu
+      
+      echo_separate "tldr -u"
+      tldr -u
+      
+      echo_separate "zinit"
+      zinit update
+    } 2>&1 | tee "$LOGFILE"
+    
+    echo "\nLog saved to: $LOGFILE"
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Common Workflows
+
+### Daily Update Routine
+
+```bash
+# Quick morning update
+update
+```
+
+### Weekly Full Update
+
+```bash
+# Include everything, then reboot
+update --all
+sudo systemctl reboot
+```
+
+### Automated Updates
+
+<Tabs>
+  <Tab title="Systemd Timer">
+    Create service file `/etc/systemd/system/update-system.service`:
+    ```ini
+    [Unit]
+    Description=System Update Service
+    
+    [Service]
+    Type=oneshot
+    User=yourusername
+    ExecStart=/home/yourusername/workspace/source/bin/update
+    ```
+    
+    Create timer file `/etc/systemd/system/update-system.timer`:
+    ```ini
+    [Unit]
+    Description=Daily System Update
+    
+    [Timer]
+    OnCalendar=daily
+    Persistent=true
+    
+    [Install]
+    WantedBy=timers.target
+    ```
+    
+    Enable timer:
+    ```bash
+    sudo systemctl enable update-system.timer
+    sudo systemctl start update-system.timer
+    ```
+  </Tab>
+  
+  <Tab title="Cron Job">
+    ```bash
+    # Edit crontab
+    crontab -e
+    
+    # Add daily update at 2 AM
+    0 2 * * * /home/yourusername/workspace/source/bin/update >> /home/yourusername/.cache/update.log 2>&1
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Dependency Reference
+
+### Required Tools
+
+<CardGroup cols={2}>
+  <Card title="yay" icon="box">
+    AUR helper and pacman wrapper
+    ```bash
+    # Install from AUR
+    git clone https://aur.archlinux.org/yay.git
+    cd yay && makepkg -si
+    ```
+  </Card>
+  
+  <Card title="tldr" icon="book">
+    Simplified man pages
+    ```bash
+    yay -S tldr
+    ```
+  </Card>
+  
+  <Card title="zinit" icon="plug">
+    Zsh plugin manager
+    ```bash
+    bash -c "$(curl -fsSL https://git.io/zinit-install)"
+    ```
+  </Card>
+  
+  <Card title="echo_separate" icon="minus">
+    Custom output formatter
+    ```bash
+    # Included in bin directory
+    chmod +x ~/workspace/source/bin/echo_separate
+    ```
+  </Card>
+</CardGroup>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="yay: command not found">
+    Install yay AUR helper:
+    ```bash
+    sudo pacman -S --needed base-devel git
+    git clone https://aur.archlinux.org/yay.git
+    cd yay
+    makepkg -si
+    ```
+  </Accordion>
+  
+  <Accordion title="echo_separate: command not found">
+    Ensure helper script is in PATH:
+    ```bash
+    ls -la ~/workspace/source/bin/echo_separate
+    chmod +x ~/workspace/source/bin/echo_separate
+    echo $PATH  # Verify bin directory is included
+    ```
+  </Accordion>
+  
+  <Accordion title="zinit not updating plugins">
+    Verify zinit installation:
+    ```bash
+    # Check zinit is loaded in .zshrc
+    grep zinit ~/.zshrc
+    
+    # Manually update
+    zinit self-update
+    zinit update
+    ```
+  </Accordion>
+  
+  <Accordion title="VS Code Insiders build fails">
+    Clean build cache and retry:
+    ```bash
+    rm -rf ~/.cache/yay/visual-studio-code-insiders-bin
+    yay -S visual-studio-code-insiders-bin
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Performance Tips
+
+<Tip>
+  **Parallel Downloads**: Enable parallel downloads in /etc/pacman.conf:
+  ```ini
+  ParallelDownloads = 5
+  ```
+</Tip>
+
+<Tip>
+  **Faster Mirrors**: Use reflector to optimize mirror list:
+  ```bash
+  sudo pacman -S reflector
+  sudo reflector --country US --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+  ```
+</Tip>
+
+<Warning>
+  **Unattended Updates**: Be cautious with fully automated updates on production systems. Manual review is recommended for critical systems.
+</Warning>
+
+---
+
+## See Also
+
+<CardGroup cols={2}>
+  <Card title="stot" icon="link" href="/commands/stot">
+    Dotfile management utility
+  </Card>
+  
+  <Card title="Overview" icon="list" href="/commands/overview">
+    All command-line utilities
+  </Card>
+  
+  <Card title="yay Documentation" icon="external-link">
+    Official yay documentation
+  </Card>
+  
+  <Card title="Arch Wiki" icon="book">
+    Arch Linux update best practices
+  </Card>
+</CardGroup>
