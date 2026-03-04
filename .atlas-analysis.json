@@ -1,0 +1,109 @@
+{
+  "projectType": "general",
+  "projectName": "dotfiles",
+  "projectDescription": "Personal dotfiles for a streamlined, Unix-inspired, Arch-based development environment with i3, polybar, doom emacs, neovim, and zsh",
+  "theme": "aspen",
+  "primaryColor": "#e25c23",
+  "lightColor": "#8c5c34",
+  "darkColor": "#1c141f",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Window Manager",
+            "pages": [
+              "window-manager/i3-configuration",
+              "window-manager/polybar",
+              "window-manager/rofi",
+              "window-manager/picom",
+              "window-manager/dunst"
+            ]
+          },
+          {
+            "group": "Terminal Setup",
+            "pages": [
+              "terminal/kitty",
+              "terminal/zsh",
+              "terminal/tmux"
+            ]
+          },
+          {
+            "group": "Editors",
+            "pages": [
+              "editors/doom-emacs",
+              "editors/neovim"
+            ]
+          },
+          {
+            "group": "Custom Commands",
+            "pages": [
+              "commands/overview",
+              "commands/stot",
+              "commands/update",
+              "commands/radio"
+            ]
+          },
+          {
+            "group": "System Configuration",
+            "pages": [
+              "system/bootloader",
+              "system/networking",
+              "system/audio"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Commands",
+            "pages": [
+              "reference/command-list",
+              "reference/keybindings"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "reference/directory-structure",
+              "reference/sync-script"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "i3 tiling window manager with custom keybindings",
+    "Polybar status bar with custom modules",
+    "Doom Emacs and Neovim configurations",
+    "Zsh with powerlevel10k and extensive plugins",
+    "Custom command-line utilities (stot, update, radio, pass)",
+    "Automated dotfile syncing with stot wrapper",
+    "Kitty terminal with theme customization",
+    "Rofi application launcher and calculator",
+    "Custom rEFInd bootloader theme"
+  ],
+  "publicApiSurface": [
+    "stot - Dotfile management wrapper around stow",
+    "update - System package updater (yay, zinit, doom)",
+    "radio - Interactive radio streaming utility",
+    "pass - Secure password generator",
+    "status - System summary printer",
+    "color - Terminal color test utility",
+    "PATH - Readable $PATH display",
+    "i3-layout-save - Save i3 workspace layouts",
+    "sync.sh - Main dotfile synchronization script"
+  ]
+}
